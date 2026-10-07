@@ -1,0 +1,13 @@
+{
+  "name": "c3-root",
+  "version": "1.0.0",
+  "description": "Root runner for C3 project using concurrently",
+  "scripts": {
+    "backend": "backend\\venv\\Scripts\\python backend\\manage.py runserver",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently -n \"backend,frontend\" -c \"blue,green\" \"npm run backend\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
