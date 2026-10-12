@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+export const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: API_BASE_URL,
 });
 
 api.interceptors.request.use((config) => {
@@ -16,12 +19,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         try {
-          const res = await axios.post('http://localhost:8000/api/token/refresh/', {
+          const res = await axios.post(`${API_BASE_URL}/token/refresh/`, {
             refresh: refreshToken,
           });
           localStorage.setItem('access_token', res.data.access);

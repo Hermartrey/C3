@@ -1,23 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, User, Store } from 'lucide-react';
+import api from '../api';
+import { Lock, User, Store, AlertCircle, ArrowRight } from 'lucide-react';
 import C3FuelsLogo from '../components/C3FuelsLogo';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const { login, logout, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && user.role === 'MANAGER') {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSubmitting(true);
+
     try {
       await login(username, password);
+      // Verify user role after login - only Branch Managers allowed
+      const res = await api.get('/me/');
+      if (res.data.role !== 'MANAGER') {
+        logout();
+        setError('Access Denied: Only Branch Managers can sign in through the Branch Manager Portal.');
+        return;
+      }
       navigate('/');
     } catch (err) {
-      setError('Invalid username or password');
+      setError(err.response?.data?.detail || 'Invalid username or password');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -55,15 +75,20 @@ const Login = () => {
         
         {error && (
           <div style={{ 
-            background: 'rgba(239, 68, 68, 0.1)', 
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            background: 'rgba(239, 68, 68, 0.12)', 
+            border: '1px solid rgba(239, 68, 68, 0.3)',
             color: '#ef4444', 
-            padding: '0.75rem', 
-            borderRadius: '8px', 
+            padding: '0.85rem 1rem', 
+            borderRadius: '10px', 
             marginBottom: '1.5rem',
-            textAlign: 'center',
-            fontSize: '0.875rem'
+            fontSize: '0.85rem',
+            lineHeight: '1.4'
           }}>
-            {error}
+            <AlertCircle size={18} style={{ flexShrink: 0 }} />
+            <span>{error}</span>
           </div>
         )}
 
@@ -98,8 +123,18 @@ const Login = () => {
               />
             </div>
           </div>
-          <button id="login-submit-btn" type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-            Sign In
+          <button 
+            id="login-submit-btn" 
+            type="submit" 
+            className="btn btn-primary" 
+            disabled={submitting}
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            {submitting ? 'Authenticating...' : (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                Sign In <ArrowRight size={16} />
+              </span>
+            )}
           </button>
         </form>
       </div>

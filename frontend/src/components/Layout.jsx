@@ -25,8 +25,9 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    const isAdmin = user?.role === 'ADMIN';
     logout();
-    navigate('/login');
+    navigate(isAdmin ? '/admin' : '/login');
   };
 
   const navItems = [
