@@ -3,14 +3,31 @@ from django.contrib.auth.models import User
 from .models import Branch, UserProfile, FuelType, Inventory, Sale, Delivery, Expense, Message, Notification
 
 class UserSerializer(serializers.ModelSerializer):
-
-    role = serializers.CharField(source='profile.role', read_only=True)
-    branch = serializers.PrimaryKeyRelatedField(source='profile.branch', read_only=True)
-    branch_name = serializers.CharField(source='profile.branch.name', read_only=True)
+    role = serializers.SerializerMethodField()
+    branch = serializers.SerializerMethodField()
+    branch_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'branch', 'branch_name']
+
+    def get_role(self, obj):
+        try:
+            return obj.profile.role
+        except Exception:
+            return 'ADMIN' if (obj.is_superuser or obj.is_staff) else 'MANAGER'
+
+    def get_branch(self, obj):
+        try:
+            return obj.profile.branch_id if (hasattr(obj, 'profile') and obj.profile and obj.profile.branch) else None
+        except Exception:
+            return None
+
+    def get_branch_name(self, obj):
+        try:
+            return obj.profile.branch.name if (hasattr(obj, 'profile') and obj.profile and obj.profile.branch) else None
+        except Exception:
+            return None
 
 class BranchSerializer(serializers.ModelSerializer):
     managers_list = serializers.SerializerMethodField()

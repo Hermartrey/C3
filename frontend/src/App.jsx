@@ -12,7 +12,6 @@ import BranchReport from './pages/BranchReport';
 import Expenses from './pages/Expenses';
 import Financials from './pages/Financials';
 import Messages from './pages/Messages';
-import Settings from './pages/Settings';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children, role }) => {
@@ -97,13 +96,7 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <Layout>
-                <Settings />
-              </Layout>
-            </ProtectedRoute>
-          } />
+          <Route path="/settings" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

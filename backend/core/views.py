@@ -29,8 +29,11 @@ def create_notification(user, title, message, notification_type='GENERAL', link=
 
 class IsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and 
-                   hasattr(request.user, 'profile') and request.user.profile.role == 'ADMIN')
+        if not (request.user and request.user.is_authenticated):
+            return False
+        if request.user.is_superuser or request.user.is_staff:
+            return True
+        return hasattr(request.user, 'profile') and request.user.profile.role == 'ADMIN'
 
 class IsManagerUser(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -326,6 +329,10 @@ class UserProfileView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        if not hasattr(request.user, 'profile'):
+            role = 'ADMIN' if (request.user.is_superuser or request.user.is_staff) else 'MANAGER'
+            UserProfile.objects.get_or_create(user=request.user, defaults={'role': role})
+            request.user.refresh_from_db()
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
@@ -699,7 +706,7 @@ class RequestPasswordCodeView(views.APIView):
             title="Password Reset Code",
             message=f"Verification code {code} sent to {email}.",
             notification_type="GENERAL",
-            link="/settings"
+            link="/"
         )
 
         return Response({
@@ -772,7 +779,7 @@ class ChangePasswordView(views.APIView):
             title="Password Changed",
             message="Your password was successfully updated.",
             notification_type="GENERAL",
-            link="/settings"
+            link="/"
         )
 
         return Response({'status': 'success', 'message': 'Password updated successfully.'})

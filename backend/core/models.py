@@ -173,4 +173,12 @@ class PasswordResetCode(models.Model):
         return f"Code for {self.user.username}: {self.code}"
 
 
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        role = 'ADMIN' if (instance.is_superuser or instance.is_staff) else 'MANAGER'
+        UserProfile.objects.get_or_create(user=instance, defaults={'role': role})
+
+
+
 

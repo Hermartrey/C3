@@ -27,8 +27,8 @@ def seed():
         if created:
             print(f"Created fuel type: {ft_name}")
 
-    # 2. Create Admin User
-    admin_user, created = User.objects.get_or_create(
+    # 2. Create or Update Admin User
+    admin_user, _ = User.objects.get_or_create(
         username='admin',
         defaults={
             'is_staff': True,
@@ -36,12 +36,15 @@ def seed():
             'email': 'admin@fuelflow.com'
         }
     )
-    if created:
-        admin_user.set_password('admin123')
-        admin_user.save()
-        print("Created admin user: admin / admin123")
+    admin_user.is_staff = True
+    admin_user.is_superuser = True
+    admin_user.set_password('admin123')
+    admin_user.save()
     
-    UserProfile.objects.get_or_create(user=admin_user, defaults={'role': 'ADMIN'})
+    admin_profile, _ = UserProfile.objects.get_or_create(user=admin_user)
+    admin_profile.role = 'ADMIN'
+    admin_profile.save()
+    print("Configured admin user: admin / admin123 (Role: ADMIN)")
 
     # 3. Create a default branch
     branch, created = Branch.objects.get_or_create(
@@ -79,19 +82,20 @@ def seed():
                 )
         print("Created sample sales data")
 
-    # 6. Create manager user
-    manager_user, created = User.objects.get_or_create(
+    # 6. Create or Update Manager User
+    manager_user, _ = User.objects.get_or_create(
         username='manager',
         defaults={'email': 'manager@fuelflow.com'}
     )
-    if created:
-        manager_user.set_password('manager123')
-        manager_user.save()
-        UserProfile.objects.get_or_create(user=manager_user, defaults={'role': 'MANAGER', 'branch': branch})
-        print("Created manager user: manager / manager123")
+    manager_user.set_password('manager123')
+    manager_user.save()
 
-if __name__ == '__main__':
-    seed()
+    manager_profile, _ = UserProfile.objects.get_or_create(user=manager_user)
+    manager_profile.role = 'MANAGER'
+    if not manager_profile.branch:
+        manager_profile.branch = branch
+    manager_profile.save()
+    print("Configured manager user: manager / manager123 (Role: MANAGER)")
 
 if __name__ == '__main__':
     seed()

@@ -14,7 +14,6 @@ import {
   Wallet,
   BarChart3,
   MessageSquare,
-  Settings as SettingsIcon,
   Sun,
   Moon
 } from 'lucide-react';
@@ -38,7 +37,6 @@ const Sidebar = () => {
     { name: 'Expenses', icon: Wallet, path: '/expenses', roles: ['ADMIN', 'MANAGER'] },
     { name: 'Financials', icon: BarChart3, path: '/financials', roles: ['ADMIN', 'MANAGER'] },
     { name: 'Messages', icon: MessageSquare, path: '/messages', roles: ['ADMIN', 'MANAGER'] },
-    { name: 'Settings', icon: SettingsIcon, path: '/settings', roles: ['ADMIN', 'MANAGER'] },
   ];
 
   return (
