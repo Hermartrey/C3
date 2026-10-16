@@ -1,12 +1,24 @@
 import axios from 'axios';
 
+export const normalizeApiUrl = (url) => {
+  if (!url || !url.trim()) return '';
+  let cleaned = url.trim().replace(/\/+$/, '');
+  if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
+    cleaned = `https://${cleaned}`;
+  }
+  if (!cleaned.endsWith('/api')) {
+    cleaned = `${cleaned}/api`;
+  }
+  return cleaned;
+};
+
 export const getApiBaseUrl = () => {
   const custom = typeof window !== 'undefined' ? localStorage.getItem('c3_custom_api_url') : null;
   if (custom && custom.trim()) {
-    return custom.trim().replace(/\/+$/, '');
+    return normalizeApiUrl(custom);
   }
   const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-  return rawApiUrl.replace(/\/+$/, '');
+  return normalizeApiUrl(rawApiUrl);
 };
 
 export const setApiBaseUrl = (url) => {
