@@ -63,7 +63,7 @@ If you prefer setting up services individually in the Render UI:
    - **Environment**: `Python`
    - **Branch**: `main`
    - **Build Command**: `bash ./build.sh`
-   - **Start Command**: `gunicorn config.wsgi:application`
+   - **Start Command**: `bash ./start.sh`
    - **Plan**: Free
 4. Add **Environment Variables** in the service settings:
    | Key | Value | Notes |
@@ -71,8 +71,8 @@ If you prefer setting up services individually in the Render UI:
    | `DATABASE_URL` | *(Paste Internal Database URL from Step 1)* | Render Postgres connection string |
    | `SECRET_KEY` | *(Generate a secure random string)* | Django secret key |
    | `DEBUG` | `False` | Production mode |
-   | `PYTHON_VERSION` | `3.11.9` | Stable runtime |
-   | `SEED_DB` | `true` | Runs `seed_data.py` on first build to create default users and data |
+   | `PYTHON_VERSION` | `3.12.11` | Python 3.12 runtime required for Django 6.0 |
+   | `SEED_DB` | `true` | Runs `seed_data.py` on first launch to create default users and data |
 5. Click **Create Web Service**.
 6. Wait for the build to finish. Once live, copy your backend URL (e.g. `https://fuelflow-backend.onrender.com`).
 
