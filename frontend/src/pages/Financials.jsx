@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
+import C3Favicon from '../components/C3Favicon';
 import {
   BarChart3, Coins, TrendingUp, TrendingDown,
   Wallet, Droplets, Filter, RefreshCw, Store, Calendar, Printer
@@ -150,20 +151,57 @@ const Financials = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
       {/* Print Only Header */}
-      <div className="print-only" style={{ marginBottom: '1.5rem', borderBottom: '2px solid #000', paddingBottom: '0.75rem' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 0.4rem 0', color: '#000' }}>C3 Fuels Station</h1>
-        <h2 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 0.2rem 0', color: '#000' }}>
-          {activeTab === 'pl' ? 'Profit & Loss (Income) Statement' : 'Balance Sheet'}
-        </h2>
-        <p style={{ fontSize: '13px', color: '#555', margin: '0 0 0.2rem 0' }}>
-          {activeTab === 'pl' 
-            ? `Reporting Period: ${filters.date_from || 'Inception'} to ${filters.date_to || 'Present'}`
-            : `As of Date: ${report?.balance_sheet?.as_of_date || today}`
-          }
-        </p>
-        <p style={{ fontSize: '13px', color: '#555', margin: '0' }}>
-          Branch: {filters.branch ? branches.find(b => b.id.toString() === filters.branch.toString())?.name : (user?.role === 'ADMIN' ? 'All Branches' : user?.branch_name || 'My Branch')}
-        </p>
+      <div className="print-only" style={{ marginBottom: '1.75rem', borderBottom: '2.5px solid #0f172a', paddingBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <C3Favicon size={56} className="print-c3-logo" />
+            <div style={{ borderLeft: '2px solid #cbd5e1', paddingLeft: '1rem' }}>
+              <h1 style={{ fontSize: '20px', fontWeight: '900', margin: 0, color: '#0f172a', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+                C3 Fuels Station
+              </h1>
+              <p style={{ fontSize: '11px', color: '#475569', margin: '2px 0 0 0', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                Official Financial Statement & Accounting Report
+              </p>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{
+              display: 'inline-block',
+              padding: '0.25rem 0.65rem',
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#0f172a',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase'
+            }}>
+              {activeTab === 'pl' ? 'Profit & Loss Statement' : 'Balance Sheet'}
+            </div>
+            <p style={{ fontSize: '10.5px', color: '#64748b', margin: '4px 0 0 0' }}>
+              Printed: {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', background: '#f8fafc', padding: '0.6rem 0.85rem', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '11.5px', color: '#1e293b' }}>
+          <div>
+            <strong style={{ color: '#475569' }}>Reporting Period: </strong>
+            <span style={{ fontWeight: 600 }}>
+              {activeTab === 'pl' 
+                ? `${filters.date_from || 'Inception'} to ${filters.date_to || 'Present'}`
+                : `As of ${report?.balance_sheet?.as_of_date || today}`
+              }
+            </span>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <strong style={{ color: '#475569' }}>Branch: </strong>
+            <span style={{ fontWeight: 600 }}>
+              {filters.branch ? branches.find(b => b.id.toString() === filters.branch.toString())?.name : (user?.role === 'ADMIN' ? 'All Branches (Consolidated)' : user?.branch_name || 'My Branch')}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Screen Header & Controls Toolbar */}
@@ -606,23 +644,38 @@ const Financials = () => {
           {/* Printable Statements (Hidden on screen, rendered cleanly for printing) */}
           <div className="print-only">
             {activeTab === 'pl' ? (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '0.5rem' }}>
+                <thead>
+                  <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                    <th style={{ padding: '0.65rem 1rem', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', color: '#334155' }}>
+                      Account Description
+                    </th>
+                    <th style={{ padding: '0.65rem 1rem', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', color: '#334155', textAlign: 'right' }}>
+                      Amount (PHP)
+                    </th>
+                  </tr>
+                </thead>
                 <tbody>
                   {incomeRows.map((row, idx) => (
-                    <tr key={idx}>
+                    <tr key={idx} style={{
+                      background: row.bold ? '#f8fafc' : (idx % 2 === 0 ? '#ffffff' : '#fafafa'),
+                      borderBottom: row.bold ? '2px solid #cbd5e1' : '1px solid #e2e8f0'
+                    }}>
                       <td style={{
-                        padding: '0.6rem 1rem',
-                        paddingLeft: row.indent ? '2rem' : '1rem',
-                        fontWeight: row.bold ? '700' : '400',
-                        fontSize: '14px',
+                        padding: '0.65rem 1rem',
+                        paddingLeft: row.indent ? '2.25rem' : '1rem',
+                        fontWeight: row.bold ? '800' : '500',
+                        fontSize: row.bold ? '13.5px' : '13px',
+                        color: '#0f172a'
                       }}>
                         {row.label}
                       </td>
                       <td style={{
-                        padding: '0.6rem 1rem',
+                        padding: '0.65rem 1rem',
                         textAlign: 'right',
-                        fontWeight: row.bold ? '700' : '600',
-                        fontSize: '14px',
+                        fontWeight: row.bold ? '800' : '600',
+                        fontSize: row.bold ? '13.5px' : '13px',
+                        color: row.value < 0 ? '#dc2626' : (row.bold ? '#0f172a' : '#1e293b')
                       }}>
                         {row.value < 0 ? `(₱${fmt(Math.abs(row.value))})` : `₱${fmt(row.value)}`}
                       </td>
@@ -631,22 +684,86 @@ const Financials = () => {
                 </tbody>
               </table>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '0.5rem' }}>
+                <thead>
+                  <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                    <th style={{ padding: '0.65rem 1rem', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', color: '#334155' }}>
+                      Account / Category
+                    </th>
+                    <th style={{ padding: '0.65rem 1rem', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', color: '#334155', textAlign: 'right' }}>
+                      Balance (PHP)
+                    </th>
+                  </tr>
+                </thead>
                 <tbody>
                   {balanceSheetRows.map((row, idx) => {
-                    if (row.type === 'header') return <tr key={idx}><td colSpan="2" style={{ fontWeight: '700', padding: '1rem 0 0.5rem 0' }}>{row.label}</td></tr>;
-                    if (row.type === 'subheader') return <tr key={idx}><td colSpan="2" style={{ fontWeight: '600', padding: '0.5rem 0 0.25rem 1rem' }}>{row.label}</td></tr>;
+                    if (row.type === 'header') return (
+                      <tr key={idx} style={{ background: '#f1f5f9', borderBottom: '1.5px solid #cbd5e1' }}>
+                        <td colSpan="2" style={{ fontWeight: '800', fontSize: '13px', padding: '0.75rem 1rem', textTransform: 'uppercase', color: '#0f172a' }}>
+                          {row.label}
+                        </td>
+                      </tr>
+                    );
+                    if (row.type === 'subheader') return (
+                      <tr key={idx} style={{ background: '#f8fafc' }}>
+                        <td colSpan="2" style={{ fontWeight: '700', fontSize: '12px', padding: '0.45rem 1rem', color: '#475569' }}>
+                          {row.label}
+                        </td>
+                      </tr>
+                    );
                     if (row.type === 'divider') return null;
+                    const isTotal = row.type === 'total' || row.type === 'grand_total';
                     return (
-                      <tr key={idx}>
-                        <td style={{ padding: '0.5rem 1rem', paddingLeft: row.indent ? '2rem' : '1rem', fontWeight: (row.type === 'total' || row.type === 'grand_total') ? '700' : '400' }}>{row.label}</td>
-                        <td style={{ padding: '0.5rem 1rem', textAlign: 'right', fontWeight: (row.type === 'total' || row.type === 'grand_total') ? '700' : '600' }}>{row.value < 0 ? `(₱${fmt(Math.abs(row.value))})` : `₱${fmt(row.value)}`}</td>
+                      <tr key={idx} style={{
+                        background: isTotal ? '#f8fafc' : '#ffffff',
+                        borderBottom: isTotal ? '2px solid #cbd5e1' : '1px solid #e2e8f0'
+                      }}>
+                        <td style={{
+                          padding: '0.55rem 1rem',
+                          paddingLeft: row.indent ? '2.25rem' : '1rem',
+                          fontWeight: isTotal ? '800' : '400',
+                          fontSize: isTotal ? '13px' : '12.5px',
+                          color: '#0f172a'
+                        }}>
+                          {row.label}
+                        </td>
+                        <td style={{
+                          padding: '0.55rem 1rem',
+                          textAlign: 'right',
+                          fontWeight: isTotal ? '800' : '600',
+                          fontSize: isTotal ? '13px' : '12.5px',
+                          color: row.value < 0 ? '#dc2626' : '#0f172a'
+                        }}>
+                          {row.value < 0 ? `(₱${fmt(Math.abs(row.value))})` : `₱${fmt(row.value)}`}
+                        </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             )}
+
+            {/* Official Report Sign-off Section */}
+            <div style={{ marginTop: '3rem', paddingTop: '1.25rem', borderTop: '1px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#475569' }}>
+              <div>
+                <p style={{ margin: '0 0 2.25rem 0', fontWeight: 600 }}>Prepared by:</p>
+                <div style={{ borderTop: '1px solid #64748b', width: '200px', paddingTop: '0.35rem', fontWeight: 600, color: '#0f172a' }}>
+                  {user?.username || 'Authorized Officer'}
+                </div>
+                <div style={{ fontSize: '10px', color: '#64748b' }}>
+                  {user?.role === 'ADMIN' ? 'System Administrator' : 'Branch Manager'}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ margin: '0 0 2.25rem 0', fontWeight: 600 }}>Certified & Approved by:</p>
+                <div style={{ borderTop: '1px solid #64748b', width: '200px', marginLeft: 'auto', paddingTop: '0.35rem', fontWeight: 600, color: '#0f172a' }}>
+                  C3 Management / Finance
+                </div>
+                <div style={{ fontSize: '10px', color: '#64748b' }}>
+                  Internal Audit & Comptroller
+                </div>
+              </div>
+            </div>
           </div>
         </>
       )}

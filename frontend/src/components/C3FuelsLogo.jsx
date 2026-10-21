@@ -31,6 +31,8 @@ const C3FuelsLogo = ({
           : 'none',
         border: isFull ? '1px solid rgba(255,255,255,0.15)' : 'none',
         userSelect: 'none',
+        WebkitPrintColorAdjust: 'exact',
+        printColorAdjust: 'exact',
         ...style
       }}
     >

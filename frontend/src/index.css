@@ -219,10 +219,20 @@ h1, h2, h3 {
     text-align: right !important;
   }
 
+  /* Preserve C3 logo rendering, SVG gradients, and exact print colors */
+  .c3-fuels-logo-container,
+  .c3-fuels-logo-container svg,
+  .c3-fuels-logo-container text,
+  .print-c3-logo {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    display: inline-block !important;
+  }
+
   /* Force print page size and margin settings */
   @page {
     size: auto;
-    margin: 20mm;
+    margin: 15mm 20mm;
   }
 }
 
