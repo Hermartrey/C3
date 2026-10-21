@@ -33,7 +33,7 @@ services:
   # Frontend Static Site (React + Vite)
   # ----------------------------------------------------
   - type: web
-    name: fuelflow-frontend
+    name: c3-fuel
     runtime: static
     rootDir: frontend
     buildCommand: "npm install && npm run build"
