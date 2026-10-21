@@ -17,7 +17,6 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
             email='admin@c3fuels.com',
             password='Password123!'
         )
-        UserProfile.objects.create(user=self.admin_user, role='ADMIN')
 
         # Create Branch
         self.branch1 = Branch.objects.create(name='Main Station', location='Downtown', address='123 Main St')
@@ -28,11 +27,9 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
             email='manager@c3fuels.com',
             password='Password123!'
         )
-        self.manager_profile = UserProfile.objects.create(
-            user=self.manager_user,
-            role='MANAGER',
-            branch=self.branch1
-        )
+        self.manager_profile = self.manager_user.profile
+        self.manager_profile.branch = self.branch1
+        self.manager_profile.save()
 
     def test_jwt_login_and_user_profile(self):
         # JWT Token Login
@@ -109,11 +106,11 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
 class InventoryAndDeliveryIntegrationTestCase(APITestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser('admin_inv', 'admin@c3.com', 'Pass123!')
-        UserProfile.objects.create(user=self.admin, role='ADMIN')
 
         self.branch = Branch.objects.create(name='Central Branch', location='City Center')
         self.manager = User.objects.create_user('mgr_inv', 'mgr@c3.com', 'Pass123!')
-        UserProfile.objects.create(user=self.manager, role='MANAGER', branch=self.branch)
+        self.manager.profile.branch = self.branch
+        self.manager.profile.save()
 
         self.fuel_diesel = FuelType.objects.create(name='Diesel Premium', description='Clean Diesel')
 
@@ -170,7 +167,6 @@ class InventoryAndDeliveryIntegrationTestCase(APITestCase):
 class SalesAndStockDeductionIntegrationTestCase(APITestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser('admin_sale', 'admin@c3.com', 'Pass123!')
-        UserProfile.objects.create(user=self.admin, role='ADMIN')
 
         self.branch = Branch.objects.create(name='Highway Station', location='Route 66')
         self.fuel_unleaded = FuelType.objects.create(name='Unleaded 95')
@@ -250,13 +246,13 @@ class FinancialReportsAndDashboardIntegrationTestCase(APITestCase):
     def setUp(self):
         # Setup Admin & Manager
         self.admin = User.objects.create_superuser('admin_fin', 'admin@fin.com', 'Pass123!')
-        UserProfile.objects.create(user=self.admin, role='ADMIN')
 
         self.branch1 = Branch.objects.create(name='Branch A', location='Location A')
         self.branch2 = Branch.objects.create(name='Branch B', location='Location B')
 
         self.manager1 = User.objects.create_user('mgr_a', 'mgra@fin.com', 'Pass123!')
-        UserProfile.objects.create(user=self.manager1, role='MANAGER', branch=self.branch1)
+        self.manager1.profile.branch = self.branch1
+        self.manager1.profile.save()
 
         self.fuel = FuelType.objects.create(name='V-Power')
 
@@ -328,11 +324,11 @@ class FinancialReportsAndDashboardIntegrationTestCase(APITestCase):
 class MessagingAndNotificationsIntegrationTestCase(APITestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser('admin_msg', 'admin@msg.com', 'Pass123!')
-        UserProfile.objects.create(user=self.admin, role='ADMIN')
 
         self.branch = Branch.objects.create(name='Eastside Branch', location='East')
         self.manager = User.objects.create_user('mgr_msg', 'mgr@msg.com', 'Pass123!')
-        UserProfile.objects.create(user=self.manager, role='MANAGER', branch=self.branch)
+        self.manager.profile.branch = self.branch
+        self.manager.profile.save()
 
         # Login Manager
         res = self.client.post('/api/token/', {'username': 'mgr_msg', 'password': 'Pass123!'})
@@ -389,10 +385,7 @@ class MessagingAndNotificationsIntegrationTestCase(APITestCase):
 class PasswordResetFlowIntegrationTestCase(APITestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser('admin_pwd', 'admin@pwd.com', 'Pass123!')
-        UserProfile.objects.create(user=self.admin, role='ADMIN')
-
         self.manager = User.objects.create_user('mgr_pwd', 'mgr@pwd.com', 'Pass123!')
-        UserProfile.objects.create(user=self.manager, role='MANAGER')
 
         # Login Admin
         res_admin = self.client.post('/api/token/', {'username': 'admin_pwd', 'password': 'Pass123!'})

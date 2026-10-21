@@ -65,7 +65,8 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
       setShowCreateForm(false);
       onManagerCreated();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create manager.');
+      const errMsg = err.response?.data?.error || err.response?.data?.detail || 'Failed to create manager.';
+      setError(errMsg);
     } finally {
       setSubmitting(false);
     }

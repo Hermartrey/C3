@@ -342,6 +342,7 @@ class CreateManagerView(views.APIView):
 
     def post(self, request):
         from django.contrib.auth.models import User as DjangoUser
+        from django.db import transaction
 
         username = request.data.get('username', '').strip()
         password = request.data.get('password', '').strip()
@@ -355,19 +356,45 @@ class CreateManagerView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        if DjangoUser.objects.filter(username=username).exists():
+        try:
+            branch = Branch.objects.get(id=branch_id)
+        except Branch.DoesNotExist:
+            return Response({'error': 'Branch not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        existing_user = DjangoUser.objects.filter(username=username).first()
+        if existing_user:
+            # Check if this user was an orphaned/incomplete creation from a previous failed attempt
+            profile = getattr(existing_user, 'profile', None)
+            if profile and profile.branch is None and not existing_user.is_staff and not existing_user.is_superuser:
+                existing_user.set_password(password)
+                if email:
+                    existing_user.email = email
+                existing_user.save()
+                profile.role = 'MANAGER'
+                profile.branch = branch
+                profile.save()
+                return Response({
+                    'id': existing_user.id,
+                    'username': existing_user.username,
+                    'email': existing_user.email,
+                    'branch_id': branch.id,
+                    'branch_name': branch.name,
+                }, status=status.HTTP_201_CREATED)
+
             return Response(
                 {'error': f"Username '{username}' is already taken."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            branch = Branch.objects.get(id=branch_id)
-        except Branch.DoesNotExist:
-            return Response({'error': 'Branch not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        user = DjangoUser.objects.create_user(username=username, password=password, email=email)
-        UserProfile.objects.create(user=user, role='MANAGER', branch=branch)
+            with transaction.atomic():
+                user = DjangoUser.objects.create_user(username=username, password=password, email=email)
+                UserProfile.objects.update_or_create(
+                    user=user,
+                    defaults={'role': 'MANAGER', 'branch': branch}
+                )
+        except Exception as e:
+            return Response({'error': f'Failed to create manager account: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
             'id': user.id,
