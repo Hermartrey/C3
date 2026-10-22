@@ -743,27 +743,6 @@ const Financials = () => {
               </table>
             )}
 
-            {/* Official Report Sign-off Section */}
-            <div style={{ marginTop: '3rem', paddingTop: '1.25rem', borderTop: '1px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#475569' }}>
-              <div>
-                <p style={{ margin: '0 0 2.25rem 0', fontWeight: 600 }}>Prepared by:</p>
-                <div style={{ borderTop: '1px solid #64748b', width: '200px', paddingTop: '0.35rem', fontWeight: 600, color: '#0f172a' }}>
-                  {user?.username || 'Authorized Officer'}
-                </div>
-                <div style={{ fontSize: '10px', color: '#64748b' }}>
-                  {user?.role === 'ADMIN' ? 'System Administrator' : 'Branch Manager'}
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ margin: '0 0 2.25rem 0', fontWeight: 600 }}>Certified & Approved by:</p>
-                <div style={{ borderTop: '1px solid #64748b', width: '200px', marginLeft: 'auto', paddingTop: '0.35rem', fontWeight: 600, color: '#0f172a' }}>
-                  C3 Management / Finance
-                </div>
-                <div style={{ fontSize: '10px', color: '#64748b' }}>
-                  Internal Audit & Comptroller
-                </div>
-              </div>
-            </div>
           </div>
         </>
       )}
