@@ -129,7 +129,7 @@ const Expenses = () => {
         <div className="glass-card" style={{ marginBottom: '1.5rem', maxWidth: '640px' }}>
           <h3 style={{ marginBottom: '1.5rem' }}>Log New Expense</h3>
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div className="form-grid-2" style={{ marginBottom: '1rem' }}>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem' }}>Description</label>
                 <input
@@ -222,7 +222,7 @@ const Expenses = () => {
               </select>
             )}
 
-            <div style={{ position: 'relative', width: '260px' }}>
+            <div style={{ position: 'relative', width: 'min(260px, 100%)', flexGrow: 1 }}>
               <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="text"
@@ -230,7 +230,7 @@ const Expenses = () => {
                 placeholder="Filter by description..."
                 value={searchDescription}
                 onChange={(e) => setSearchDescription(e.target.value)}
-                style={{ paddingLeft: '2.3rem', paddingRight: searchDescription ? '2.2rem' : '0.75rem', fontSize: '0.85rem' }}
+                style={{ paddingLeft: '2.3rem', paddingRight: searchDescription ? '2.2rem' : '0.75rem', fontSize: '0.85rem', width: '100%' }}
               />
               {searchDescription && (
                 <button
@@ -257,7 +257,7 @@ const Expenses = () => {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>

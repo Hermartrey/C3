@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     BranchViewSet, FuelTypeViewSet, InventoryViewSet,
     SaleViewSet, DeliveryViewSet, DashboardStatsView, UserProfileView,
-    CreateManagerView, ExpenseViewSet, FinancialReportView,
+    CreateManagerView, DeleteManagerView, ExpenseViewSet, FinancialReportView,
     MessageViewSet, ManagerListView, NotificationViewSet,
     RequestPasswordCodeView, ChangePasswordView
 )
@@ -23,6 +23,7 @@ urlpatterns = [
     path('dashboard-stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
     path('me/', UserProfileView.as_view(), name='user-profile'),
     path('managers/', CreateManagerView.as_view(), name='create-manager'),
+    path('managers/<int:pk>/', DeleteManagerView.as_view(), name='delete-manager'),
     path('managers-list/', ManagerListView.as_view(), name='managers-list'),
     path('financial-report/', FinancialReportView.as_view(), name='financial-report'),
     path('settings/request-password-code/', RequestPasswordCodeView.as_view(), name='request-password-code'),

@@ -405,6 +405,38 @@ class CreateManagerView(views.APIView):
         }, status=status.HTTP_201_CREATED)
 
 
+class DeleteManagerView(views.APIView):
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, pk):
+        from django.contrib.auth.models import User as DjangoUser
+        from django.db import transaction
+
+        try:
+            target_user = DjangoUser.objects.get(id=pk)
+        except DjangoUser.DoesNotExist:
+            return Response({'error': 'Manager account not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Safety checks: cannot delete self
+        if target_user.id == request.user.id:
+            return Response({'error': 'You cannot delete your own account.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Safety checks: cannot delete admin accounts
+        if target_user.is_superuser or target_user.is_staff or (hasattr(target_user, 'profile') and target_user.profile.role == 'ADMIN'):
+            return Response({'error': 'Cannot delete an administrator account.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        username = target_user.username
+        try:
+            with transaction.atomic():
+                target_user.delete()
+        except Exception as e:
+            return Response({'error': f'Failed to delete manager account: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'status': 'success',
+            'message': f'Manager account "{username}" has been deleted successfully.'
+        }, status=status.HTTP_200_OK)
+
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseSerializer

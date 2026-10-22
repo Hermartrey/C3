@@ -62,15 +62,15 @@ const Login = () => {
   };
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      minHeight: '100vh',
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100dvh',
       background: 'radial-gradient(circle at top left, #1e293b, #0f172a)',
-      padding: '1.5rem'
+      padding: '1rem'
     }}>
-      <div className="glass-card" style={{ width: '100%', maxWidth: '420px', padding: '2.25rem 2rem' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '420px', padding: 'clamp(1.5rem, 4vw, 2.25rem) clamp(1rem, 4vw, 2rem)' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
             <C3FuelsLogo height={52} variant="full" />
@@ -93,17 +93,17 @@ const Login = () => {
           <h1 style={{ marginBottom: '0.25rem', fontSize: '1.5rem', fontWeight: '700' }}>Welcome Back</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Fuel Management System</p>
         </div>
-        
+
         {error && (
-          <div style={{ 
+          <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '0.5rem',
-            background: 'rgba(239, 68, 68, 0.12)', 
+            background: 'rgba(239, 68, 68, 0.12)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            color: '#ef4444', 
-            padding: '0.85rem 1rem', 
-            borderRadius: '10px', 
+            color: '#ef4444',
+            padding: '0.85rem 1rem',
+            borderRadius: '10px',
             marginBottom: '1.5rem',
             fontSize: '0.825rem',
             lineHeight: '1.45'
@@ -114,8 +114,8 @@ const Login = () => {
             </div>
 
             {(!error.includes('Invalid username') && !error.includes('Administrator')) && (
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setIsConfigModalOpen(true)}
                 style={{
                   alignSelf: 'flex-start',
@@ -144,10 +144,10 @@ const Login = () => {
             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500' }}>Manager Username</label>
             <div style={{ position: 'relative' }}>
               <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
+              <input
                 id="login-username-input"
-                type="text" 
-                className="input" 
+                type="text"
+                className="input"
                 style={{ paddingLeft: '2.75rem' }}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -160,10 +160,10 @@ const Login = () => {
             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '500' }}>Password</label>
             <div style={{ position: 'relative' }}>
               <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
+              <input
                 id="login-password-input"
-                type="password" 
-                className="input" 
+                type="password"
+                className="input"
                 style={{ paddingLeft: '2.75rem' }}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -173,10 +173,10 @@ const Login = () => {
             </div>
           </div>
 
-          <button 
-            id="login-submit-btn" 
-            type="submit" 
-            className="btn btn-primary" 
+          <button
+            id="login-submit-btn"
+            type="submit"
+            className="btn btn-primary"
             disabled={submitting}
             style={{ width: '100%', justifyContent: 'center', padding: '0.8rem', fontWeight: '600' }}
           >
@@ -193,16 +193,16 @@ const Login = () => {
         </form>
 
         {/* Portal Switching & Credentials Hint */}
-        <div style={{ 
-          marginTop: '1.75rem', 
-          paddingTop: '1.25rem', 
+        <div style={{
+          marginTop: '1.75rem',
+          paddingTop: '1.25rem',
           borderTop: '1px solid rgba(148, 163, 184, 0.15)',
           display: 'flex',
           flexDirection: 'column',
           gap: '0.85rem',
           textAlign: 'center'
         }}>
-          <Link 
+          {/* <Link 
             to="/admin" 
             style={{ 
               display: 'inline-flex', 
@@ -216,7 +216,7 @@ const Login = () => {
             }}
           >
             <Shield size={14} /> Are you an Administrator? Sign in to Admin Portal &rarr;
-          </Link>
+          </Link> */}
 
           {/* Server Config & Info */}
           <div style={{
@@ -227,11 +227,11 @@ const Login = () => {
             fontSize: '0.75rem',
             color: 'var(--text-muted)'
           }}>
-            <Server size={12} />
-            <span style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={currentApiUrl}>
+            {/* <Server size={12} /> */}
+            {/* <span style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={currentApiUrl}>
               {currentApiUrl}
-            </span>
-            <button
+            </span> */}
+            {/* <button
               type="button"
               onClick={() => setIsConfigModalOpen(true)}
               style={{
@@ -247,13 +247,13 @@ const Login = () => {
               }}
             >
               <Settings size={12} /> Server Settings
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
 
-      <ApiConfigModal 
-        isOpen={isConfigModalOpen} 
+      <ApiConfigModal
+        isOpen={isConfigModalOpen}
         onClose={() => setIsConfigModalOpen(false)}
         onSaved={(newUrl) => setCurrentApiUrl(newUrl)}
       />

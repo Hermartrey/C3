@@ -235,7 +235,7 @@ const SalesTracking = () => {
         <div className="glass-card" style={{ marginBottom: '2rem', maxWidth: '800px' }}>
           <h3 style={{ marginBottom: '1.5rem' }}>Record Daily Transactions</h3>
           <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+            <div className="form-grid-2" style={{ marginBottom: '1.5rem' }}>
               <div>
                 <label style={{ marginBottom: '0.5rem', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <Calendar size={14} /> Date of Sale
@@ -265,7 +265,7 @@ const SalesTracking = () => {
               )}
             </div>
 
-            <div style={{ overflowX: 'auto', marginBottom: '1.5rem' }}>
+            <div className="table-responsive" style={{ marginBottom: '1.5rem' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>

@@ -16,9 +16,7 @@ def seed():
     fuel_types_data = [
         ('Diesel', 10000.0),
         ('Unleaded', 8000.0),
-        ('Premium', 8000.0),
-        ('V-Power Diesel', 5000.0),
-        ('V-Power Racing', 5000.0)
+        ('Premium', 8000.0)
     ]
     fuel_type_objects = []
     for ft_name, capacity in fuel_types_data:

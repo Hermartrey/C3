@@ -91,10 +91,12 @@ const ApiConfigModal = ({ isOpen, onClose, onSaved }) => {
       <div className="glass-card" style={{
         width: '100%',
         maxWidth: '520px',
+        maxHeight: '90dvh',
+        overflowY: 'auto',
         backgroundColor: '#0f172a',
         border: '1px solid rgba(148, 163, 184, 0.2)',
         borderRadius: '16px',
-        padding: '1.75rem',
+        padding: 'clamp(1rem, 4vw, 1.75rem)',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
       }}>
         {/* Header */}
@@ -186,7 +188,7 @@ const ApiConfigModal = ({ isOpen, onClose, onSaved }) => {
         )}
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginTop: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={handleReset}
@@ -196,7 +198,7 @@ const ApiConfigModal = ({ isOpen, onClose, onSaved }) => {
             Reset to Default
           </button>
           
-          <div style={{ display: 'flex', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={() => handleTest()}

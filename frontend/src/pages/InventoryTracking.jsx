@@ -229,7 +229,7 @@ const InventoryTracking = () => {
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
           {user?.role === 'ADMIN' && (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -263,7 +263,7 @@ const InventoryTracking = () => {
       {/* KPI Metrics Summary Band */}
       <div className="no-print" style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
         gap: '0.5rem'
       }}>
         <MiniStat title="Total Fuel Available" value={`${fmt(totalCurrentStock)} L`} icon={Droplets} color="#3b82f6" />

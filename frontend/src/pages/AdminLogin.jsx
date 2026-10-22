@@ -62,13 +62,13 @@ const AdminLogin = () => {
   };
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      minHeight: '100vh',
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100dvh',
       background: 'radial-gradient(circle at top center, #1e1b4b 0%, #0f172a 60%, #020617 100%)',
-      padding: '1.5rem',
+      padding: '1rem',
       position: 'relative',
       overflow: 'hidden'
     }}>
@@ -85,10 +85,10 @@ const AdminLogin = () => {
         borderRadius: '50%'
       }} />
 
-      <div className="glass-card" style={{ 
-        width: '100%', 
-        maxWidth: '430px', 
-        padding: '2.5rem 2rem',
+      <div className="glass-card" style={{
+        width: '100%',
+        maxWidth: '430px',
+        padding: 'clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem)',
         border: '1px solid rgba(99, 102, 241, 0.25)',
         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.15)',
         position: 'relative',
@@ -99,7 +99,7 @@ const AdminLogin = () => {
           <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'center' }}>
             <C3FuelsLogo height={48} variant="full" />
           </div>
-          
+
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -125,18 +125,18 @@ const AdminLogin = () => {
             Sign in with your administrator credentials
           </p>
         </div>
-        
+
         {/* Error Alert */}
         {error && (
-          <div style={{ 
+          <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '0.5rem',
-            background: 'rgba(239, 68, 68, 0.12)', 
+            background: 'rgba(239, 68, 68, 0.12)',
             border: '1px solid rgba(239, 68, 68, 0.3)',
-            color: '#ef4444', 
-            padding: '0.85rem 1rem', 
-            borderRadius: '10px', 
+            color: '#ef4444',
+            padding: '0.85rem 1rem',
+            borderRadius: '10px',
             marginBottom: '1.5rem',
             fontSize: '0.825rem',
             lineHeight: '1.45'
@@ -147,8 +147,8 @@ const AdminLogin = () => {
             </div>
 
             {(!error.includes('credentials') && !error.includes('Manager')) && (
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setIsConfigModalOpen(true)}
                 style={{
                   alignSelf: 'flex-start',
@@ -180,10 +180,10 @@ const AdminLogin = () => {
             </label>
             <div style={{ position: 'relative' }}>
               <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-              <input 
+              <input
                 id="admin-username-input"
-                type="text" 
-                className="input" 
+                type="text"
+                className="input"
                 style={{ paddingLeft: '2.75rem', background: 'rgba(15, 23, 42, 0.6)' }}
                 placeholder="admin"
                 value={username}
@@ -199,10 +199,10 @@ const AdminLogin = () => {
             </label>
             <div style={{ position: 'relative' }}>
               <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-              <input 
+              <input
                 id="admin-password-input"
-                type="password" 
-                className="input" 
+                type="password"
+                className="input"
                 style={{ paddingLeft: '2.75rem', background: 'rgba(15, 23, 42, 0.6)' }}
                 placeholder="••••••••"
                 value={password}
@@ -212,14 +212,14 @@ const AdminLogin = () => {
             </div>
           </div>
 
-          <button 
+          <button
             id="admin-login-submit"
-            type="submit" 
-            className="btn btn-primary" 
+            type="submit"
+            className="btn btn-primary"
             disabled={submitting}
-            style={{ 
-              width: '100%', 
-              justifyContent: 'center', 
+            style={{
+              width: '100%',
+              justifyContent: 'center',
               padding: '0.85rem',
               fontWeight: '600',
               background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
@@ -240,16 +240,16 @@ const AdminLogin = () => {
         </form>
 
         {/* Portal Switch & Server Config */}
-        <div style={{ 
-          marginTop: '1.75rem', 
-          paddingTop: '1.25rem', 
+        <div style={{
+          marginTop: '1.75rem',
+          paddingTop: '1.25rem',
           borderTop: '1px solid rgba(148, 163, 184, 0.15)',
           display: 'flex',
           flexDirection: 'column',
           gap: '0.85rem',
           textAlign: 'center'
         }}>
-          <Link 
+          {/* <Link 
             to="/login" 
             style={{ 
               display: 'inline-flex', 
@@ -263,7 +263,7 @@ const AdminLogin = () => {
             }}
           >
             <Store size={14} /> Are you a Branch Manager? Sign in to Manager Portal &rarr;
-          </Link>
+          </Link> */}
 
           {/* Server Config & Info */}
           <div style={{
@@ -274,7 +274,7 @@ const AdminLogin = () => {
             fontSize: '0.75rem',
             color: 'var(--text-muted)'
           }}>
-            <Server size={12} />
+            {/* <Server size={12} />
             <span style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={currentApiUrl}>
               {currentApiUrl}
             </span>
@@ -294,13 +294,13 @@ const AdminLogin = () => {
               }}
             >
               <Settings size={12} /> Server Settings
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
 
-      <ApiConfigModal 
-        isOpen={isConfigModalOpen} 
+      <ApiConfigModal
+        isOpen={isConfigModalOpen}
         onClose={() => setIsConfigModalOpen(false)}
         onSaved={(newUrl) => setCurrentApiUrl(newUrl)}
       />

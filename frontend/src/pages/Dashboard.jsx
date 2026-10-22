@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { useAuth } from '../context/AuthContext';
-import { 
-  TrendingUp, 
-  Droplets, 
-  Coins, 
+import {
+  TrendingUp,
+  Droplets,
+  Coins,
   Store,
   ArrowUpRight,
   ArrowDownRight,
@@ -14,28 +14,28 @@ import {
   Building2,
   Activity
 } from 'lucide-react';
-import { 
+import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar
 } from 'recharts';
 
 /* ─── Sleek Stat Card Component ───────────────────────────────────── */
 const StatCard = ({ title, value, icon: Icon, color, trend, subtitle }) => (
-  <div 
-    className="glass-card glass-card-hover" 
-    style={{ 
-      padding: '0.85rem 1rem', 
-      display: 'flex', 
-      alignItems: 'center', 
+  <div
+    className="glass-card glass-card-hover stat-card-item"
+    style={{
+      padding: '0.85rem 1rem',
+      display: 'flex',
+      alignItems: 'center',
       gap: '0.85rem',
       minWidth: 0,
       position: 'relative',
       overflow: 'hidden'
     }}
   >
-    <div style={{ 
-      background: `${color}18`, 
-      padding: '0.6rem', 
+    <div style={{
+      background: `${color}18`,
+      padding: '0.6rem',
       borderRadius: '10px',
       color: color,
       display: 'flex',
@@ -54,8 +54,8 @@ const StatCard = ({ title, value, icon: Icon, color, trend, subtitle }) => (
       </h3>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem' }}>
         {trend !== undefined && (
-          <span style={{ 
-            fontSize: '0.68rem', 
+          <span style={{
+            fontSize: '0.68rem',
             fontWeight: 600,
             color: trend >= 0 ? 'var(--success)' : 'var(--error)',
             display: 'inline-flex',
@@ -145,7 +145,7 @@ const Dashboard = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', flexShrink: 0 }}>
         <div>
           <h1 style={{ fontSize: '1.4rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-            <Activity size={22} style={{ color: 'var(--primary)' }} /> 
+            <Activity size={22} style={{ color: 'var(--primary)' }} />
             {user?.role === 'ADMIN' ? 'Admin Dashboard' : 'Branch Dashboard'}
           </h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: 0, marginTop: '0.1rem' }}>
@@ -154,11 +154,11 @@ const Dashboard = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <span style={{ 
-            fontSize: '0.7rem', 
-            color: 'var(--secondary)', 
-            background: 'rgba(16, 185, 129, 0.12)', 
-            padding: '0.25rem 0.6rem', 
+          <span style={{
+            fontSize: '0.7rem',
+            color: 'var(--secondary)',
+            background: 'rgba(16, 185, 129, 0.12)',
+            padding: '0.25rem 0.6rem',
             borderRadius: '999px',
             border: '1px solid rgba(16, 185, 129, 0.25)',
             display: 'flex',
@@ -170,9 +170,9 @@ const Dashboard = () => {
             Live Sync
           </span>
 
-          <button 
-            onClick={() => fetchStats(true)} 
-            className="btn btn-outline" 
+          <button
+            onClick={() => fetchStats(true)}
+            className="btn btn-outline"
             style={{ padding: '0.35rem 0.75rem', fontSize: '0.75rem', height: '32px' }}
             title="Refresh Data"
           >
@@ -184,34 +184,34 @@ const Dashboard = () => {
 
       {/* KPI Stats Grid */}
       <div className="dashboard-grid" style={{ flexShrink: 0 }}>
-        <StatCard 
-          title="Total Gross Revenue" 
-          value={fmtCurrency(stats.total_sales)} 
-          icon={Coins} 
+        <StatCard
+          title="Total Gross Revenue"
+          value={fmtCurrency(stats.total_sales)}
+          icon={Coins}
           color="#3b82f6"
           trend={12}
           subtitle="vs last week"
         />
-        <StatCard 
-          title="Total Liters Dispensed" 
-          value={`${fmtNumber(stats.total_liters)} L`} 
-          icon={Droplets} 
+        <StatCard
+          title="Total Liters Dispensed"
+          value={`${fmtNumber(stats.total_liters)} L`}
+          icon={Droplets}
           color="#10b981"
           trend={5}
           subtitle="fuel volume"
         />
-        <StatCard 
-          title="Net Operating Profit" 
-          value={fmtCurrency(stats.profit)} 
-          icon={TrendingUp} 
+        <StatCard
+          title="Net Operating Profit"
+          value={fmtCurrency(stats.profit)}
+          icon={TrendingUp}
           color="#f59e0b"
           trend={stats.profit >= 0 ? 8 : -4}
           subtitle="after expenses"
         />
-        <StatCard 
-          title={user?.role === 'ADMIN' ? 'Active Stations' : 'Station Branch'} 
-          value={user?.role === 'ADMIN' ? `${stats.branch_count} Branches` : (user?.branch_name || 'Assigned')} 
-          icon={Store} 
+        <StatCard
+          title={user?.role === 'ADMIN' ? 'Active Stations' : 'Station Branch'}
+          value={user?.role === 'ADMIN' ? `${stats.branch_count} Branches` : (user?.branch_name || 'Assigned')}
+          icon={Store}
           color="#8b5cf6"
           subtitle={user?.role === 'ADMIN' ? 'operational' : 'active station'}
         />
@@ -241,14 +241,14 @@ const Dashboard = () => {
                 <AreaChart data={stats.daily_sales} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.02}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.07)" vertical={false} />
                   <XAxis dataKey="timestamp__date" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(v) => `₱${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}`} />
-                  <Tooltip 
+                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(v) => `₱${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
+                  <Tooltip
                     contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: '0.75rem', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
                     itemStyle={{ color: '#f8fafc' }}
                     formatter={(value) => [`₱${parseFloat(value).toLocaleString()}`, 'Sales']}
@@ -284,8 +284,8 @@ const Dashboard = () => {
                 <BarChart data={stats.inventory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.07)" vertical={false} />
                   <XAxis dataKey="fuel_type__name" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(v) => `${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}L`} />
-                  <Tooltip 
+                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} tickFormatter={(v) => `${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}L`} />
+                  <Tooltip
                     contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', fontSize: '0.75rem', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
                     itemStyle={{ color: '#f8fafc' }}
                     formatter={(value) => [`${parseFloat(value).toLocaleString()} Liters`, 'Stock Level']}
@@ -303,7 +303,7 @@ const Dashboard = () => {
       </div>
 
       {/* Operational Highlights Band */}
-      <div className="glass-card" style={{ 
+      {/* <div className="glass-card" style={{ 
         padding: '0.65rem 1rem', 
         display: 'flex', 
         alignItems: 'center', 
@@ -329,7 +329,7 @@ const Dashboard = () => {
         <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
           C3 Fuel Management • Auto-updating system metrics
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -102,6 +102,46 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
         self.assertIn('manager_test', usernames)
         self.assertIn('new_mgr', usernames)
 
+    def test_delete_manager_account(self):
+        # Admin credentials
+        admin_token_res = self.client.post('/api/token/', {
+            'username': 'admin_test',
+            'password': 'Password123!'
+        })
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {admin_token_res.data["access"]}')
+
+        # 1. Admin creates a manager
+        create_res = self.client.post('/api/managers/', {
+            'username': 'temp_mgr',
+            'password': 'Password123!',
+            'email': 'tempmgr@c3fuels.com',
+            'branch': self.branch1.id
+        })
+        self.assertEqual(create_res.status_code, status.HTTP_201_CREATED)
+        manager_id = create_res.data['id']
+
+        # 2. Manager cannot delete other managers (Forbidden)
+        mgr_token_res = self.client.post('/api/token/', {
+            'username': 'manager_test',
+            'password': 'Password123!'
+        })
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {mgr_token_res.data["access"]}')
+        forbidden_del_res = self.client.delete(f'/api/managers/{manager_id}/')
+        self.assertEqual(forbidden_del_res.status_code, status.HTTP_403_FORBIDDEN)
+
+        # 3. Admin cannot delete an admin account
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {admin_token_res.data["access"]}')
+        del_admin_res = self.client.delete(f'/api/managers/{self.admin_user.id}/')
+        self.assertEqual(del_admin_res.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # 4. Admin deletes the manager
+        del_res = self.client.delete(f'/api/managers/{manager_id}/')
+        self.assertEqual(del_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(del_res.data['status'], 'success')
+
+        # 5. Verify user is removed from database
+        self.assertFalse(User.objects.filter(id=manager_id).exists())
+
 
 class InventoryAndDeliveryIntegrationTestCase(APITestCase):
     def setUp(self):

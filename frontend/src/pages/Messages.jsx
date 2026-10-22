@@ -4,7 +4,8 @@ import api from '../api';
 import { useAuth } from '../context/AuthContext';
 import {
   Send, MessageSquare, Store, UserCheck, Shield,
-  Search, Check, CheckCheck, RefreshCw, Circle
+  Search, Check, CheckCheck, RefreshCw, Circle, ArrowLeft,
+  PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 
 const Messages = () => {
@@ -19,6 +20,8 @@ const Messages = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [filterQuery, setFilterQuery] = useState('');
+  const [mobileTab, setMobileTab] = useState('chat'); // 'list' | 'chat'
+  const [showBranchList, setShowBranchList] = useState(true);
 
   const messagesEndRef = useRef(null);
   const isAdmin = user?.role === 'ADMIN';
@@ -126,32 +129,58 @@ const Messages = () => {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 5rem)' }}>
+    <div className="messages-page-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', flex: 1, minHeight: 0 }}>
       {/* Header */}
-      <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="messages-header-section" style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', flexShrink: 0 }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <MessageSquare size={26} color="var(--primary)" /> Branch Communications
+          <h1 style={{ fontSize: '1.35rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+            <MessageSquare size={20} color="var(--primary)" /> Branch Communications
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: '0.1rem 0 0 0' }}>
             {isAdmin ? 'Direct messaging channel with branch managers' : 'Direct communication channel with HQ Administration'}
           </p>
         </div>
-        <button
-          className="btn btn-outline"
-          onClick={() => fetchMessages()}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem' }}
-        >
-          <RefreshCw size={14} /> Refresh
-        </button>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {isAdmin && (
+            <>
+              {/* Mobile Station Toggle */}
+              <button
+                className="btn btn-outline mobile-only-btn"
+                onClick={() => setMobileTab(mobileTab === 'list' ? 'chat' : 'list')}
+                style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+              >
+                <Store size={14} /> {mobileTab === 'list' ? 'View Chat' : 'Select Branch'}
+              </button>
+
+              {/* Desktop / Laptop Station Collapse Toggle */}
+              <button
+                className="btn btn-outline hide-on-mobile"
+                onClick={() => setShowBranchList(prev => !prev)}
+                title={showBranchList ? "Collapse stations list to expand chat" : "Show stations list"}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+              >
+                {showBranchList ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
+                <span>{showBranchList ? 'Hide Stations' : 'Show Stations'}</span>
+              </button>
+            </>
+          )}
+          <button
+            className="btn btn-outline"
+            onClick={() => fetchMessages()}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+          >
+            <RefreshCw size={14} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Main Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: isAdmin ? '320px 1fr' : '1fr', gap: '1.25rem', flex: 1, minHeight: 0 }}>
+      <div className={`messages-layout ${!isAdmin ? 'single-pane' : ''} ${!showBranchList ? 'hide-branches' : ''} ${mobileTab === 'list' ? 'show-list' : 'show-chat'}`}>
         {/* Left Panel - Branch Selector (Admin only) */}
-        {isAdmin && (
-          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', padding: '1rem', overflow: 'hidden' }}>
-            <div style={{ position: 'relative', marginBottom: '1rem' }}>
+        {isAdmin && showBranchList && (
+          <div className="glass-card messages-branch-list" style={{ display: 'flex', flexDirection: 'column', padding: '0.85rem', overflow: 'hidden', height: '100%', minHeight: 0 }}>
+            <div style={{ position: 'relative', marginBottom: '0.75rem', flexShrink: 0 }}>
               <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="text"
@@ -163,16 +192,19 @@ const Messages = () => {
               />
             </div>
 
-            <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', minHeight: 0 }}>
               {filteredBranches.map((b) => {
                 const isSelected = b.id === selectedBranchId;
                 const managersCount = b.managers_list?.length || 0;
                 return (
                   <div
                     key={b.id}
-                    onClick={() => setSelectedBranchId(b.id)}
+                    onClick={() => {
+                      setSelectedBranchId(b.id);
+                      setMobileTab('chat');
+                    }}
                     style={{
-                      padding: '0.85rem 1rem',
+                      padding: '0.75rem 0.85rem',
                       borderRadius: '10px',
                       cursor: 'pointer',
                       background: isSelected ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.02)',
@@ -180,24 +212,24 @@ const Messages = () => {
                       transition: 'all 0.2s ease',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.85rem'
+                      gap: '0.75rem'
                     }}
                   >
                     <div style={{
                       background: isSelected ? 'var(--primary)' : 'rgba(255,255,255,0.06)',
-                      padding: '0.65rem',
-                      borderRadius: '10px',
+                      padding: '0.55rem',
+                      borderRadius: '8px',
                       color: isSelected ? '#fff' : 'var(--text-muted)',
                       flexShrink: 0
                     }}>
-                      <Store size={20} />
+                      <Store size={18} />
                     </div>
                     <div style={{ overflow: 'hidden', flex: 1 }}>
-                      <p style={{ fontWeight: 600, fontSize: '0.9rem', color: isSelected ? 'var(--primary)' : 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <p style={{ fontWeight: 600, fontSize: '0.85rem', color: isSelected ? 'var(--primary)' : 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
                         {b.name}
                       </p>
-                      <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.15rem' }}>
-                        <UserCheck size={12} /> {managersCount} manager{managersCount !== 1 ? 's' : ''}
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.15rem', margin: 0 }}>
+                        <UserCheck size={11} /> {managersCount} manager{managersCount !== 1 ? 's' : ''}
                       </p>
                     </div>
                   </div>
@@ -213,42 +245,67 @@ const Messages = () => {
         )}
 
         {/* Right Panel - Chat Area */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
+        <div className="glass-card messages-chat-pane" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0, height: '100%', minHeight: 0 }}>
           {/* Chat Header */}
           <div style={{
-            padding: '1rem 1.5rem',
+            padding: '0.75rem 1rem',
             borderBottom: '1px solid var(--border)',
             background: 'rgba(0,0,0,0.2)',
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem'
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+            flexShrink: 0
           }}>
-            <div style={{ background: 'rgba(59,130,246,0.12)', padding: '0.65rem', borderRadius: '10px', color: 'var(--primary)' }}>
-              {isAdmin ? <Store size={22} /> : <Shield size={22} />}
-            </div>
-            <div>
-              <h3 style={{ fontSize: '1.1rem' }}>
-                {isAdmin
-                  ? (activeBranch ? activeBranch.name : 'Select a Branch')
-                  : 'C3 Fuels Headquarters Administration'}
-              </h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                {isAdmin
-                  ? (activeBranch ? `${activeBranch.location} — ${activeBranch.managers_list?.map(m => m.username).join(', ') || 'No manager assigned'}` : '')
-                  : `Assigned Branch: ${user?.branch_name || 'Branch Manager Channel'}`}
-              </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+              {isAdmin && (
+                <button
+                  className="btn btn-outline mobile-only-btn"
+                  onClick={() => setMobileTab('list')}
+                  style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem', flexShrink: 0 }}
+                  title="Back to Stations List"
+                >
+                  <ArrowLeft size={14} /> Stations
+                </button>
+              )}
+              {isAdmin && !showBranchList && (
+                <button
+                  className="btn btn-outline hide-on-mobile"
+                  onClick={() => setShowBranchList(true)}
+                  style={{ padding: '0.3rem 0.55rem', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}
+                  title="Expand Stations List"
+                >
+                  <PanelLeftOpen size={14} /> Switch Station
+                </button>
+              )}
+              <div style={{ background: 'rgba(59,130,246,0.12)', padding: '0.5rem', borderRadius: '8px', color: 'var(--primary)', flexShrink: 0 }}>
+                {isAdmin ? <Store size={18} /> : <Shield size={18} />}
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <h3 style={{ fontSize: '0.95rem', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {isAdmin
+                    ? (activeBranch ? activeBranch.name : 'Select a Branch')
+                    : 'C3 Fuels Headquarters Administration'}
+                </h3>
+                <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {isAdmin
+                    ? (activeBranch ? `${activeBranch.location} — ${activeBranch.managers_list?.map(m => m.username).join(', ') || 'No manager assigned'}` : '')
+                    : `Assigned Branch: ${user?.branch_name || 'Branch Manager Channel'}`}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Messages Feed */}
-          <div style={{
+          <div className="messages-feed-area" style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '1.5rem',
+            padding: '1.25rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
-            background: 'rgba(0,0,0,0.1)'
+            gap: '0.85rem',
+            background: 'rgba(0,0,0,0.1)',
+            minHeight: 0
           }}>
             {loading ? (
               <div style={{ textAlign: 'center', color: 'var(--text-muted)', margin: 'auto' }}>
@@ -266,7 +323,7 @@ const Messages = () => {
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: isOwn ? 'flex-end' : 'flex-start',
-                      maxWidth: '75%',
+                      maxWidth: '82%',
                       alignSelf: isOwn ? 'flex-end' : 'flex-start'
                     }}
                   >
@@ -286,7 +343,7 @@ const Messages = () => {
                     </div>
 
                     <div style={{
-                      padding: '0.85rem 1.15rem',
+                      padding: '0.8rem 1.15rem',
                       borderRadius: isOwn ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
                       background: isOwn
                         ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
@@ -323,14 +380,16 @@ const Messages = () => {
 
           {/* Composer */}
           <form
+            className="messages-composer-form"
             onSubmit={handleSendMessage}
             style={{
-              padding: '1rem 1.25rem',
+              padding: '0.85rem 1.15rem',
               borderTop: '1px solid var(--border)',
               background: 'rgba(0,0,0,0.2)',
               display: 'flex',
               gap: '0.75rem',
-              alignItems: 'center'
+              alignItems: 'center',
+              flexShrink: 0
             }}
           >
             <input
@@ -350,7 +409,7 @@ const Messages = () => {
               type="submit"
               className="btn btn-primary"
               disabled={sending || !newMessageContent.trim() || (isAdmin && !selectedBranchId)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.75rem 1.25rem' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.7rem 1.25rem', flexShrink: 0 }}
             >
               <Send size={16} /> Send
             </button>

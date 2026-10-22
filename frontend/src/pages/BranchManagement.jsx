@@ -47,11 +47,17 @@ const MiniStat = ({ title, value, icon: Icon, color, subtitle }) => (
 
 /* ─── Managers Modal ──────────────────────────────────────────── */
 const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
+  const [managers, setManagers] = useState(branch.managers_list || []);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({ username: '', password: '', email: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    setManagers(branch.managers_list || []);
+  }, [branch]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -59,8 +65,14 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
     setError('');
     setSuccess('');
     try {
-      await api.post('/managers/', { ...formData, branch: branch.id });
+      const res = await api.post('/managers/', { ...formData, branch: branch.id });
       setSuccess(`Manager "${formData.username}" created successfully!`);
+      const newManager = {
+        id: res.data.id,
+        username: res.data.username,
+        email: res.data.email
+      };
+      setManagers(prev => [...prev, newManager]);
       setFormData({ username: '', password: '', email: '' });
       setShowCreateForm(false);
       onManagerCreated();
@@ -69,6 +81,28 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
       setError(errMsg);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeleteManager = async (managerId, username) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete manager account "${username}"?\n\nThis will permanently delete the login credentials and profile for this manager. This action cannot be undone.`
+    );
+    if (!confirmDelete) return;
+
+    setDeletingId(managerId);
+    setError('');
+    setSuccess('');
+    try {
+      await api.delete(`/managers/${managerId}/`);
+      setSuccess(`Manager "${username}" has been deleted successfully.`);
+      setManagers(prev => prev.filter(m => m.id !== managerId));
+      onManagerCreated();
+    } catch (err) {
+      const errMsg = err.response?.data?.error || err.response?.data?.detail || 'Failed to delete manager account.';
+      setError(errMsg);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -120,9 +154,19 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
           </div>
         )}
 
-        {branch.managers_list && branch.managers_list.length > 0 ? (
+        {error && !showCreateForm && (
+          <div style={{
+            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+            color: '#ef4444', borderRadius: '8px', padding: '0.6rem 0.85rem',
+            marginBottom: '0.85rem', fontSize: '0.8rem'
+          }}>
+            {error}
+          </div>
+        )}
+
+        {managers && managers.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-            {branch.managers_list.map((m) => (
+            {managers.map((m) => (
               <div
                 key={m.id}
                 style={{
@@ -130,24 +174,52 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
                   background: 'rgba(255,255,255,0.03)',
                   border: '1px solid var(--border)',
                   borderRadius: '8px',
-                  display: 'flex', alignItems: 'center', gap: '0.75rem'
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem'
                 }}
               >
-                <div style={{
-                  background: 'rgba(59,130,246,0.12)', padding: '0.45rem',
-                  borderRadius: '50%', color: 'var(--primary)', flexShrink: 0
-                }}>
-                  <UserCheck size={16} />
-                </div>
-                <div>
-                  <p style={{ fontWeight: '600', fontSize: '0.85rem', margin: 0 }}>{m.username}</p>
-                  <p style={{
-                    color: 'var(--text-muted)', fontSize: '0.75rem',
-                    display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.15rem', margin: 0
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+                  <div style={{
+                    background: 'rgba(59,130,246,0.12)', padding: '0.45rem',
+                    borderRadius: '50%', color: 'var(--primary)', flexShrink: 0
                   }}>
-                    <Mail size={11} /> {m.email || 'No email provided'}
-                  </p>
+                    <UserCheck size={16} />
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <p style={{ fontWeight: '600', fontSize: '0.85rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {m.username}
+                    </p>
+                    <p style={{
+                      color: 'var(--text-muted)', fontSize: '0.75rem',
+                      display: 'flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.15rem', margin: 0,
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                    }}>
+                      <Mail size={11} /> {m.email || 'No email provided'}
+                    </p>
+                  </div>
                 </div>
+
+                <button
+                  id={`delete-manager-btn-${m.id}`}
+                  onClick={() => handleDeleteManager(m.id, m.username)}
+                  disabled={deletingId === m.id}
+                  title={`Delete manager "${m.username}"`}
+                  className="btn btn-outline"
+                  style={{
+                    color: 'var(--error, #ef4444)',
+                    borderColor: 'rgba(239, 68, 68, 0.25)',
+                    background: 'rgba(239, 68, 68, 0.08)',
+                    padding: '0.35rem 0.6rem',
+                    fontSize: '0.72rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    flexShrink: 0,
+                    cursor: deletingId === m.id ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  <Trash2 size={13} />
+                  <span>{deletingId === m.id ? 'Deleting...' : 'Delete'}</span>
+                </button>
               </div>
             ))}
           </div>
@@ -471,7 +543,7 @@ const CreateBranchModal = ({ onClose, onBranchCreated }) => {
                 placeholder="e.g. North Station"
               />
             </div>
-            <div>
+            {/* <div>
               <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.78rem' }}>City/Region</label>
               <input
                 id="branch-location-input"
@@ -483,7 +555,7 @@ const CreateBranchModal = ({ onClose, onBranchCreated }) => {
                 required
                 placeholder="e.g. Manila"
               />
-            </div>
+            </div> */}
             <div>
               <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.78rem' }}>Full Address</label>
               <textarea
@@ -595,7 +667,7 @@ const BranchManagement = () => {
       {/* KPI Metrics Summary Band */}
       <div className="no-print" style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
         gap: '0.5rem'
       }}>
         <MiniStat title="Active Stations" value={`${branches.length} Branches`} icon={Store} color="#3b82f6" />
@@ -605,13 +677,12 @@ const BranchManagement = () => {
 
       {/* Main Screen-Fit Branch Dashboard Workspace */}
       <div className="financial-workspace no-print" style={{
-        height: 'calc(100vh - 215px)',
-        minHeight: '440px',
+        minHeight: '400px',
         overflowY: 'auto'
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
           gap: '0.65rem'
         }}>
           {branches.map((branch) => (
@@ -623,7 +694,7 @@ const BranchManagement = () => {
               gap: '0.5rem'
             }}>
               <div>
-                <div 
+                <div
                   style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', marginBottom: '0.4rem', cursor: 'pointer' }}
                   onClick={() => navigate(`/branches/${branch.id}`)}
                   title="Click to view branch report"
@@ -697,8 +768,8 @@ const BranchManagement = () => {
                   <button
                     id={`delete-btn-${branch.id}`}
                     className="btn btn-outline"
-                    style={{ 
-                      color: 'var(--error)', 
+                    style={{
+                      color: 'var(--error)',
                       borderColor: 'rgba(239, 68, 68, 0.2)',
                       background: 'rgba(239, 68, 68, 0.05)',
                       padding: '0.3rem 0',

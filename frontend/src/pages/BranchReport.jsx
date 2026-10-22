@@ -14,13 +14,13 @@ import {
 
 /* ── Stat Card ─────────────────────────────────────────────────── */
 const StatCard = ({ title, value, icon: Icon, color }) => (
-  <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-    <div style={{ background: `${color}18`, padding: '0.85rem', borderRadius: '12px', color }}>
-      <Icon size={26} />
+  <div className="glass-card stat-card-item" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+    <div style={{ background: `${color}18`, padding: '0.75rem', borderRadius: '12px', color, flexShrink: 0 }}>
+      <Icon size={24} />
     </div>
-    <div>
-      <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{title}</p>
-      <h3 style={{ fontSize: '1.4rem', marginTop: '0.2rem' }}>{value}</h3>
+    <div style={{ minWidth: 0, flex: 1 }}>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</p>
+      <h3 style={{ fontSize: '1.25rem', marginTop: '0.15rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</h3>
     </div>
   </div>
 );
@@ -147,22 +147,22 @@ const BranchReport = () => {
           <ArrowLeft size={16} /> Back to Branches
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ background: 'rgba(139,92,246,0.12)', padding: '0.9rem', borderRadius: '14px', color: '#8b5cf6' }}>
-              <Store size={28} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(139,92,246,0.12)', padding: '0.75rem', borderRadius: '14px', color: '#8b5cf6', flexShrink: 0 }}>
+              <Store size={26} />
             </div>
             <div>
-              <h1 style={{ fontSize: '2rem' }}>{branch.name}</h1>
-              <p style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem' }}>
-                <MapPin size={14} /> {branch.location}{branch.address ? ` — ${branch.address}` : ''}
+              <h1 style={{ fontSize: '1.6rem', margin: 0, wordBreak: 'break-word' }}>{branch.name}</h1>
+              <p style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem', fontSize: '0.85rem' }}>
+                <MapPin size={14} style={{ flexShrink: 0 }} /> {branch.location}{branch.address ? ` — ${branch.address}` : ''}
               </p>
             </div>
           </div>
           <button
             className="btn btn-primary"
             onClick={() => navigate(`/messages?branch=${branch.id}`)}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}
           >
             <MessageSquare size={18} /> Message Branch Manager
           </button>
@@ -170,7 +170,7 @@ const BranchReport = () => {
       </div>
 
       {/* ── Stat Cards ── */}
-      <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginBottom: '2rem' }}>
+      <div className="dashboard-grid" style={{ marginBottom: '1.5rem' }}>
         <StatCard title="Total Revenue"    value={`₱${fmt(totalSales)}`}   icon={Coins}  color="#3b82f6" />
         <StatCard title="Total Liters Sold" value={`${fmt(totalLiters)} L`} icon={Droplets}    color="#10b981" />
         <StatCard title="Total Expenses"    value={`₱${fmt(totalExpenses)}`} icon={Wallet}    color="#ef4444" />
@@ -179,7 +179,7 @@ const BranchReport = () => {
       </div>
 
       {/* ── Charts Row ── */}
-      <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', marginBottom: '2rem' }}>
+      <div className="dashboard-charts-grid" style={{ marginBottom: '1.5rem' }}>
 
         {/* Sales trend */}
         <div className="glass-card" style={{ height: '360px' }}>
@@ -281,7 +281,7 @@ const BranchReport = () => {
             {groupedSales.length} daily record{groupedSales.length !== 1 ? 's' : ''}
           </span>
         </h3>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
@@ -332,7 +332,7 @@ const BranchReport = () => {
             {deliveries.length} record{deliveries.length !== 1 ? 's' : ''}
           </span>
         </h3>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
@@ -377,7 +377,7 @@ const BranchReport = () => {
             {expenses.length} record{expenses.length !== 1 ? 's' : ''}
           </span>
         </h3>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-responsive">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
