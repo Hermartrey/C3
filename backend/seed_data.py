@@ -25,6 +25,9 @@ def seed():
         if created:
             print(f"Created fuel type: {ft_name}")
 
+    # Remove any obsolete fuel types if they exist
+    FuelType.objects.filter(name__in=['V-Power Diesel', 'V-Power Racing']).delete()
+
     # 2. Create or Update Admin User
     admin_user, _ = User.objects.get_or_create(
         username='admin',
