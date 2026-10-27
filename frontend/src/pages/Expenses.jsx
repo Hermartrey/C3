@@ -87,39 +87,72 @@ const Expenses = () => {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="expense-header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Wallet size={28} style={{ color: 'var(--primary)' }} /> Expenses
+          <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+            <Wallet size={28} style={{ color: 'var(--primary)', flexShrink: 0 }} /> Expenses
           </h1>
-          <p style={{ color: 'var(--text-muted)' }}>Record and track operating expenses for your branch</p>
+          <p style={{ color: 'var(--text-muted)', margin: '0.35rem 0 0 0', fontSize: '0.875rem' }}>
+            {user?.role === 'ADMIN' ? 'Record and track operating expenses across all branches' : 'Record and track operating expenses for your branch'}
+          </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+        <button className="btn btn-primary expense-header-btn" onClick={() => setShowForm(!showForm)}>
           <Plus size={20} /> Log Expense
         </button>
       </div>
 
       {/* Summary Cards */}
-      <div className="dashboard-grid" style={{ marginBottom: '1.5rem', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
-        <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem 1.5rem' }}>
-          <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '0.85rem', borderRadius: '12px', color: '#ef4444' }}>
-            <Wallet size={26} />
+      <div className="expenses-summary-grid">
+        <div className="glass-card expense-stat-card">
+          <div className="expense-stat-icon-wrapper" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}>
+            <Wallet size={24} />
           </div>
-          <div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-              {searchDescription ? 'Filtered Total' : 'Total Expenses'}
+          <div className="expense-stat-info">
+            <div className="expense-stat-header">
+              <span className="expense-stat-title">
+                {searchDescription || selectedBranch ? 'Filtered Total' : 'Total Expenses'}
+              </span>
+              {(searchDescription || selectedBranch) && (
+                <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.45rem', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderRadius: '6px' }}>
+                  Filtered
+                </span>
+              )}
+            </div>
+            <h3 className="expense-stat-value">₱{fmt(totalExpenses)}</h3>
+            <p className="expense-stat-subtext">
+              {searchDescription
+                ? `Matching "${searchDescription}"`
+                : (selectedBranch
+                    ? `Branch: ${branches.find(b => b.id.toString() === selectedBranch.toString())?.name || 'Selected'}`
+                    : (user?.role === 'ADMIN' ? 'All active branches combined' : `${user?.branch_name || 'Branch'} operating spend`)
+                  )
+              }
             </p>
-            <h3 style={{ fontSize: '1.5rem', marginTop: '0.2rem' }}>₱{fmt(totalExpenses)}</h3>
           </div>
         </div>
 
-        <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem 1.5rem' }}>
-          <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '0.85rem', borderRadius: '12px', color: '#3b82f6' }}>
-            <History size={26} />
+        <div className="glass-card expense-stat-card">
+          <div className="expense-stat-icon-wrapper" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}>
+            <History size={24} />
           </div>
-          <div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Records Count</p>
-            <h3 style={{ fontSize: '1.5rem', marginTop: '0.2rem' }}>{filteredExpenses.length} Expenses</h3>
+          <div className="expense-stat-info">
+            <div className="expense-stat-header">
+              <span className="expense-stat-title">Records Count</span>
+              {(searchDescription || selectedBranch) && (
+                <span className="badge" style={{ fontSize: '0.68rem', padding: '0.1rem 0.45rem', background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', borderRadius: '6px' }}>
+                  {filteredExpenses.length} of {expenses.length}
+                </span>
+              )}
+            </div>
+            <h3 className="expense-stat-value">
+              {filteredExpenses.length} {filteredExpenses.length === 1 ? 'Expense' : 'Expenses'}
+            </h3>
+            <p className="expense-stat-subtext">
+              {(searchDescription || selectedBranch)
+                ? 'Filtered entries displayed'
+                : 'Total recorded transactions'
+              }
+            </p>
           </div>
         </div>
       </div>
@@ -194,24 +227,24 @@ const Expenses = () => {
 
       {/* Expense Log */}
       <div className="glass-card">
-        <div style={{
+        <div className="expense-log-header" style={{
           display: 'flex',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
           marginBottom: '1.5rem'
         }}>
           <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-            <History size={20} /> Expense Log
+            <History size={20} style={{ color: 'var(--primary)', flexShrink: 0 }} /> Expense Log
           </h3>
 
           {/* Description Filter Control */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div className="expense-log-filter-bar" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             {user?.role === 'ADMIN' && (
               <select
-                className="input"
-                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem', width: 'auto' }}
+                className="input expense-filter-select"
+                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem' }}
                 value={selectedBranch}
                 onChange={(e) => setSelectedBranch(e.target.value)}
               >
@@ -222,7 +255,7 @@ const Expenses = () => {
               </select>
             )}
 
-            <div style={{ position: 'relative', width: 'min(260px, 100%)', flexGrow: 1 }}>
+            <div className="expense-filter-search-wrapper" style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="text"
@@ -246,7 +279,8 @@ const Expenses = () => {
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    padding: '0.2rem'
                   }}
                   title="Clear filter"
                 >
