@@ -50,7 +50,7 @@ def seed():
     # 3. Create a default branch
     branch, created = Branch.objects.get_or_create(
         name='Main Station',
-        defaults={'location': 'Metropolis', 'address': '123 Fuel St'}
+        defaults={'address': '123 Fuel St'}
     )
     if created:
         print(f"Created branch: {branch.name}")

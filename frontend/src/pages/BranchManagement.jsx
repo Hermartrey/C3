@@ -5,6 +5,7 @@ import {
   X, Mail, UserCheck, KeyRound, UserPlus, CheckCircle2, Trash2, Pencil, MessageSquare, Building2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import AddressDropdownSelect from '../components/AddressDropdownSelect';
 
 /* ─── Mini Stat Card ───────────────────────────────────── */
 const MiniStat = ({ title, value, icon: Icon, color, subtitle }) => (
@@ -127,7 +128,7 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
               <Users size={18} color="var(--primary)" /> Branch Managers
             </h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.2rem' }}>
-              {branch.name} — {branch.location}
+              {branch.name}{branch.address ? ` — ${branch.address}` : ''}
             </p>
           </div>
           <button
@@ -344,7 +345,6 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
 const EditBranchModal = ({ branch, onClose, onBranchUpdated }) => {
   const [formData, setFormData] = useState({
     name: branch.name || '',
-    location: branch.location || '',
     address: branch.address || ''
   });
   const [submitting, setSubmitting] = useState(false);
@@ -359,7 +359,20 @@ const EditBranchModal = ({ branch, onClose, onBranchUpdated }) => {
       onBranchUpdated();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data?.error || 'Failed to update branch.');
+      const errData = err.response?.data;
+      let errMsg = 'Failed to update branch.';
+      if (typeof errData === 'string') {
+        errMsg = errData;
+      } else if (errData?.detail) {
+        errMsg = errData.detail;
+      } else if (errData?.error) {
+        errMsg = errData.error;
+      } else if (errData && typeof errData === 'object') {
+        const firstKey = Object.keys(errData)[0];
+        const val = errData[firstKey];
+        errMsg = Array.isArray(val) ? `${firstKey}: ${val.join(' ')}` : `${firstKey}: ${val}`;
+      }
+      setError(errMsg);
     } finally {
       setSubmitting(false);
     }
@@ -378,7 +391,7 @@ const EditBranchModal = ({ branch, onClose, onBranchUpdated }) => {
     >
       <div
         className="glass-card"
-        style={{ width: '100%', maxWidth: '460px', position: 'relative' }}
+        style={{ width: '100%', maxWidth: '480px', position: 'relative' }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <div>
@@ -426,29 +439,11 @@ const EditBranchModal = ({ branch, onClose, onBranchUpdated }) => {
                 required
               />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.78rem' }}>City/Region</label>
-              <input
-                id="edit-branch-location-input"
-                type="text"
-                className="input"
-                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem' }}
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.78rem' }}>Full Address</label>
-              <textarea
-                id="edit-branch-address-input"
-                className="input"
-                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem' }}
-                rows="2"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              />
-            </div>
+            <AddressDropdownSelect
+              idPrefix="edit-branch"
+              value={formData.address}
+              onChange={(val) => setFormData({ ...formData, address: val })}
+            />
           </div>
           <div style={{ display: 'flex', gap: '0.65rem' }}>
             <button id="save-branch-edit-submit" type="submit" className="btn btn-primary" disabled={submitting} style={{ flex: 1, justifyContent: 'center', padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}>
@@ -466,7 +461,7 @@ const EditBranchModal = ({ branch, onClose, onBranchUpdated }) => {
 
 /* ─── Create Branch Modal ─────────────────────────────────────── */
 const CreateBranchModal = ({ onClose, onBranchCreated }) => {
-  const [formData, setFormData] = useState({ name: '', location: '', address: '' });
+  const [formData, setFormData] = useState({ name: '', address: '' });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -479,7 +474,20 @@ const CreateBranchModal = ({ onClose, onBranchCreated }) => {
       onBranchCreated();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.detail || err.response?.data?.error || 'Failed to create branch.');
+      const errData = err.response?.data;
+      let errMsg = 'Failed to create branch.';
+      if (typeof errData === 'string') {
+        errMsg = errData;
+      } else if (errData?.detail) {
+        errMsg = errData.detail;
+      } else if (errData?.error) {
+        errMsg = errData.error;
+      } else if (errData && typeof errData === 'object') {
+        const firstKey = Object.keys(errData)[0];
+        const val = errData[firstKey];
+        errMsg = Array.isArray(val) ? `${firstKey}: ${val.join(' ')}` : `${firstKey}: ${val}`;
+      }
+      setError(errMsg);
     } finally {
       setSubmitting(false);
     }
@@ -496,7 +504,7 @@ const CreateBranchModal = ({ onClose, onBranchCreated }) => {
         zIndex: 1100, backdropFilter: 'blur(4px)', padding: '1rem'
       }}
     >
-      <div className="glass-card" style={{ width: '100%', maxWidth: '460px', position: 'relative' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '480px', position: 'relative' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <div>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0, fontSize: '1.1rem' }}>
@@ -543,31 +551,11 @@ const CreateBranchModal = ({ onClose, onBranchCreated }) => {
                 placeholder="e.g. North Station"
               />
             </div>
-            {/* <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.78rem' }}>City/Region</label>
-              <input
-                id="branch-location-input"
-                type="text"
-                className="input"
-                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem' }}
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                required
-                placeholder="e.g. Manila"
-              />
-            </div> */}
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.3rem', fontSize: '0.78rem' }}>Full Address</label>
-              <textarea
-                id="branch-address-input"
-                className="input"
-                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem' }}
-                rows="2"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Detailed street address..."
-              />
-            </div>
+            <AddressDropdownSelect
+              idPrefix="create-branch"
+              value={formData.address}
+              onChange={(val) => setFormData({ ...formData, address: val })}
+            />
           </div>
           <div style={{ display: 'flex', gap: '0.65rem' }}>
             <button id="create-branch-submit" type="submit" className="btn btn-primary" disabled={submitting} style={{ flex: 1, justifyContent: 'center', padding: '0.4rem 0.75rem', fontSize: '0.8rem' }}>
@@ -627,7 +615,7 @@ const BranchManagement = () => {
   };
 
   const totalManagers = branches.reduce((acc, b) => acc + (b.managers_list?.length || 0), 0);
-  const uniqueCities = [...new Set(branches.map(b => b.location).filter(Boolean))].length;
+  const branchesWithAddress = branches.filter(b => b.address).length;
 
   if (loading) return (
     <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
@@ -672,7 +660,7 @@ const BranchManagement = () => {
       }}>
         <MiniStat title="Active Stations" value={`${branches.length} Branches`} icon={Store} color="#3b82f6" />
         <MiniStat title="Assigned Managers" value={`${totalManagers} Managers`} icon={Users} color="#10b981" />
-        <MiniStat title="Cities/Regions" value={`${uniqueCities} Locations`} icon={MapPin} color="#8b5cf6" />
+        <MiniStat title="Configured Addresses" value={`${branchesWithAddress} Stations`} icon={MapPin} color="#8b5cf6" />
       </div>
 
       {/* Main Screen-Fit Branch Dashboard Workspace */}
@@ -706,14 +694,15 @@ const BranchManagement = () => {
                     <h3 style={{ fontSize: '1.05rem', color: 'var(--primary)', margin: 0, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {branch.name}
                     </h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem', margin: 0, marginTop: '0.1rem' }}>
-                      <MapPin size={12} /> {branch.location}
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0, marginTop: '0.1rem' }}>
+                      Station #{branch.id}
                     </p>
                   </div>
                 </div>
 
-                <div style={{ padding: '0.45rem 0.6rem', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-muted)', minHeight: '36px' }}>
-                  {branch.address || 'No address provided'}
+                <div style={{ padding: '0.45rem 0.6rem', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', fontSize: '0.75rem', color: 'var(--text-muted)', minHeight: '36px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <MapPin size={13} style={{ flexShrink: 0, color: 'var(--primary)' }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{branch.address || 'No address provided'}</span>
                 </div>
               </div>
 

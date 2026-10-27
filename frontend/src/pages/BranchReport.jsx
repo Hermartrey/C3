@@ -155,7 +155,7 @@ const BranchReport = () => {
             <div>
               <h1 style={{ fontSize: '1.6rem', margin: 0, wordBreak: 'break-word' }}>{branch.name}</h1>
               <p style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem', fontSize: '0.85rem' }}>
-                <MapPin size={14} style={{ flexShrink: 0 }} /> {branch.location}{branch.address ? ` — ${branch.address}` : ''}
+                <MapPin size={14} style={{ flexShrink: 0 }} /> {branch.address || 'No address set'}
               </p>
             </div>
           </div>

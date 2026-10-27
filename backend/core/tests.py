@@ -19,7 +19,7 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
         )
 
         # Create Branch
-        self.branch1 = Branch.objects.create(name='Main Station', location='Downtown', address='123 Main St')
+        self.branch1 = Branch.objects.create(name='Main Station', address='123 Main St')
 
         # Create Manager
         self.manager_user = User.objects.create_user(
@@ -60,7 +60,7 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {mgr_token}')
         create_branch_res = self.client.post('/api/branches/', {
             'name': 'Unauthorized Branch',
-            'location': 'Suburbs'
+            'address': 'Suburbs'
         })
         self.assertEqual(create_branch_res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -73,7 +73,7 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {admin_token}')
         admin_branch_res = self.client.post('/api/branches/', {
             'name': 'North Branch',
-            'location': 'Northside'
+            'address': 'Northside'
         })
         self.assertEqual(admin_branch_res.status_code, status.HTTP_201_CREATED)
 
@@ -147,7 +147,7 @@ class InventoryAndDeliveryIntegrationTestCase(APITestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser('admin_inv', 'admin@c3.com', 'Pass123!')
 
-        self.branch = Branch.objects.create(name='Central Branch', location='City Center')
+        self.branch = Branch.objects.create(name='Central Branch', address='City Center')
         self.manager = User.objects.create_user('mgr_inv', 'mgr@c3.com', 'Pass123!')
         self.manager.profile.branch = self.branch
         self.manager.profile.save()
@@ -208,7 +208,7 @@ class SalesAndStockDeductionIntegrationTestCase(APITestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser('admin_sale', 'admin@c3.com', 'Pass123!')
 
-        self.branch = Branch.objects.create(name='Highway Station', location='Route 66')
+        self.branch = Branch.objects.create(name='Highway Station', address='Route 66')
         self.fuel_unleaded = FuelType.objects.create(name='Unleaded 95')
         self.fuel_diesel = FuelType.objects.create(name='Diesel Standard')
 
@@ -287,8 +287,8 @@ class FinancialReportsAndDashboardIntegrationTestCase(APITestCase):
         # Setup Admin & Manager
         self.admin = User.objects.create_superuser('admin_fin', 'admin@fin.com', 'Pass123!')
 
-        self.branch1 = Branch.objects.create(name='Branch A', location='Location A')
-        self.branch2 = Branch.objects.create(name='Branch B', location='Location B')
+        self.branch1 = Branch.objects.create(name='Branch A', address='Location A')
+        self.branch2 = Branch.objects.create(name='Branch B', address='Location B')
 
         self.manager1 = User.objects.create_user('mgr_a', 'mgra@fin.com', 'Pass123!')
         self.manager1.profile.branch = self.branch1
@@ -365,7 +365,7 @@ class MessagingAndNotificationsIntegrationTestCase(APITestCase):
     def setUp(self):
         self.admin = User.objects.create_superuser('admin_msg', 'admin@msg.com', 'Pass123!')
 
-        self.branch = Branch.objects.create(name='Eastside Branch', location='East')
+        self.branch = Branch.objects.create(name='Eastside Branch', address='East')
         self.manager = User.objects.create_user('mgr_msg', 'mgr@msg.com', 'Pass123!')
         self.manager.profile.branch = self.branch
         self.manager.profile.save()

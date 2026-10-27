@@ -125,7 +125,7 @@ const Messages = () => {
 
   const filteredBranches = branches.filter((b) =>
     b.name.toLowerCase().includes(filterQuery.toLowerCase()) ||
-    b.location.toLowerCase().includes(filterQuery.toLowerCase())
+    (b.address && b.address.toLowerCase().includes(filterQuery.toLowerCase()))
   );
 
   return (
@@ -289,7 +289,7 @@ const Messages = () => {
                 </h3>
                 <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {isAdmin
-                    ? (activeBranch ? `${activeBranch.location} — ${activeBranch.managers_list?.map(m => m.username).join(', ') || 'No manager assigned'}` : '')
+                    ? (activeBranch ? `${activeBranch.address ? `${activeBranch.address} — ` : ''}${activeBranch.managers_list?.map(m => m.username).join(', ') || 'No manager assigned'}` : '')
                     : `Assigned Branch: ${user?.branch_name || 'Branch Manager Channel'}`}
                 </p>
               </div>

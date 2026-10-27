@@ -7,7 +7,6 @@ from django.utils import timezone
 
 class Branch(models.Model):
     name = models.CharField(max_length=255)
-    location = models.CharField(max_length=255)
     address = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
