@@ -315,6 +315,11 @@ class DashboardStatsView(views.APIView):
         seven_days_ago = timezone.now() - timedelta(days=7)
         daily_sales = sales.filter(timestamp__gte=seven_days_ago).values('timestamp__date').annotate(amount=Sum('total_amount')).order_by('timestamp__date')
 
+        mgr_branch_name = None
+        if profile.branch and profile.branch.name:
+            trimmed = profile.branch.name.strip()
+            mgr_branch_name = (trimmed[0].upper() + trimmed[1:]) if trimmed else None
+
         return Response({
             'total_sales': total_sales_amount,
             'total_liters': total_liters_sold,
@@ -322,7 +327,8 @@ class DashboardStatsView(views.APIView):
             'profit': profit,
             'inventory': list(inventory_summary),
             'daily_sales': list(daily_sales),
-            'branch_count': branches.count() if profile.role == 'ADMIN' else 1
+            'branch_count': branches.count() if profile.role == 'ADMIN' else 1,
+            'branch_name': mgr_branch_name
         })
 
 class UserProfileView(views.APIView):

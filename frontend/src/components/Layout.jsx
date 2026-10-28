@@ -240,7 +240,9 @@ const Layout = ({ children }) => {
               textOverflow: 'ellipsis',
               maxWidth: '180px'
             }}>
-              {user?.role === 'ADMIN' ? '👑 Owner' : `🏢 ${user?.branch_name || 'Manager'}`}
+              {user?.role === 'ADMIN' 
+                ? '👑 Owner' 
+                : `🏢 ${(user?.branch_name ? user.branch_name.trim().charAt(0).toUpperCase() + user.branch_name.trim().slice(1) : '') || 'Manager'}`}
             </span>
 
             <NotificationCenter />

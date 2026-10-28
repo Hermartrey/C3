@@ -25,12 +25,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_branch_name(self, obj):
         try:
-            return obj.profile.branch.name if (hasattr(obj, 'profile') and obj.profile and obj.profile.branch) else None
+            if hasattr(obj, 'profile') and obj.profile and obj.profile.branch and obj.profile.branch.name:
+                name = obj.profile.branch.name.strip()
+                return (name[0].upper() + name[1:]) if name else None
+            return None
         except Exception:
             return None
 
 class BranchSerializer(serializers.ModelSerializer):
     managers_list = serializers.SerializerMethodField()
+
+    def validate_name(self, value):
+        if value:
+            trimmed = value.strip()
+            if trimmed:
+                return trimmed[0].upper() + trimmed[1:]
+        return value
 
     def get_managers_list(self, obj):
         return [

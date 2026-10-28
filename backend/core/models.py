@@ -10,6 +10,13 @@ class Branch(models.Model):
     address = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        if self.name:
+            trimmed = self.name.strip()
+            if trimmed:
+                self.name = trimmed[0].upper() + trimmed[1:]
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 

@@ -64,7 +64,7 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
         })
         self.assertEqual(create_branch_res.status_code, status.HTTP_403_FORBIDDEN)
 
-        # Admin creating branch -> Created (201)
+        # Admin creating branch with lowercase name -> Created (201) and first letter capitalized
         admin_token_res = self.client.post('/api/token/', {
             'username': 'admin_test',
             'password': 'Password123!'
@@ -72,10 +72,11 @@ class AuthAndPermissionsIntegrationTestCase(APITestCase):
         admin_token = admin_token_res.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {admin_token}')
         admin_branch_res = self.client.post('/api/branches/', {
-            'name': 'North Branch',
+            'name': 'north branch',
             'address': 'Northside'
         })
         self.assertEqual(admin_branch_res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(admin_branch_res.data['name'], 'North branch')
 
     def test_create_and_list_managers(self):
         # Admin credentials

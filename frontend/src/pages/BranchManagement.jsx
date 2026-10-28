@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 import {
   MapPin, Plus, Store, Users, TrendingUp,
-  X, Mail, UserCheck, KeyRound, UserPlus, CheckCircle2, Trash2, Pencil, MessageSquare, Building2
+  X, Mail, UserCheck, KeyRound, UserPlus, CheckCircle2, Trash2, Pencil, MessageSquare, Building2, AlertTriangle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddressDropdownSelect from '../components/AddressDropdownSelect';
+import ConfirmModal from '../components/ConfirmModal';
 
 /* ─── Mini Stat Card ───────────────────────────────────── */
 const MiniStat = ({ title, value, icon: Icon, color, subtitle }) => (
@@ -53,6 +54,7 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
   const [formData, setFormData] = useState({ username: '', password: '', email: '' });
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [managerToDelete, setManagerToDelete] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -85,11 +87,9 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
     }
   };
 
-  const handleDeleteManager = async (managerId, username) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete manager account "${username}"?\n\nThis will permanently delete the login credentials and profile for this manager. This action cannot be undone.`
-    );
-    if (!confirmDelete) return;
+  const handleConfirmDeleteManager = async () => {
+    if (!managerToDelete) return;
+    const { id: managerId, username } = managerToDelete;
 
     setDeletingId(managerId);
     setError('');
@@ -98,10 +98,12 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
       await api.delete(`/managers/${managerId}/`);
       setSuccess(`Manager "${username}" has been deleted successfully.`);
       setManagers(prev => prev.filter(m => m.id !== managerId));
+      setManagerToDelete(null);
       onManagerCreated();
     } catch (err) {
       const errMsg = err.response?.data?.error || err.response?.data?.detail || 'Failed to delete manager account.';
       setError(errMsg);
+      setManagerToDelete(null);
     } finally {
       setDeletingId(null);
     }
@@ -201,7 +203,7 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
 
                 <button
                   id={`delete-manager-btn-${m.id}`}
-                  onClick={() => handleDeleteManager(m.id, m.username)}
+                  onClick={() => setManagerToDelete(m)}
                   disabled={deletingId === m.id}
                   title={`Delete manager "${m.username}"`}
                   className="btn btn-outline"
@@ -337,6 +339,54 @@ const ManagersModal = ({ branch, onClose, onManagerCreated }) => {
           </button>
         )}
       </div>
+
+      {/* Confirmation Modal when Admin tries to delete a manager */}
+      {managerToDelete && (
+        <ConfirmModal
+          isOpen={Boolean(managerToDelete)}
+          onClose={() => !deletingId && setManagerToDelete(null)}
+          onConfirm={handleConfirmDeleteManager}
+          title="Delete Branch Manager"
+          subtitle="Confirm Account Deletion"
+          message={`Are you sure you want to delete manager account "${managerToDelete.username}"?`}
+          confirmText="Yes, Delete Manager"
+          cancelText="Keep Manager"
+          confirmVariant="danger"
+          loading={deletingId === managerToDelete.id}
+          icon={AlertTriangle}
+          idPrefix="delete-manager-confirm"
+          details={
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Manager Username:</span>
+                <span style={{ fontWeight: 600, color: 'var(--text-main)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <UserCheck size={14} color="var(--primary)" />
+                  {managerToDelete.username}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Email:</span>
+                <span style={{ color: 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Mail size={13} />
+                  {managerToDelete.email || 'No email provided'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Assigned Branch:</span>
+                <span style={{ fontWeight: 500, color: 'var(--text-main)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Store size={14} color="#10b981" />
+                  {branch.name}
+                </span>
+              </div>
+            </div>
+          }
+          warningMessage={
+            <span>
+              <strong>Irreversible Action:</strong> This will permanently delete the login credentials and profile for <strong>"{managerToDelete.username}"</strong>. The manager will immediately lose access to this branch and the system.
+            </span>
+          }
+        />
+      )}
     </div>
   );
 };
@@ -354,8 +404,10 @@ const EditBranchModal = ({ branch, onClose, onBranchUpdated }) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+    const rawName = formData.name.trim();
+    const capitalizedName = rawName ? rawName.charAt(0).toUpperCase() + rawName.slice(1) : '';
     try {
-      await api.put(`/branches/${branch.id}/`, formData);
+      await api.put(`/branches/${branch.id}/`, { ...formData, name: capitalizedName });
       onBranchUpdated();
       onClose();
     } catch (err) {
@@ -469,8 +521,10 @@ const CreateBranchModal = ({ onClose, onBranchCreated }) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
+    const rawName = formData.name.trim();
+    const capitalizedName = rawName ? rawName.charAt(0).toUpperCase() + rawName.slice(1) : '';
     try {
-      await api.post('/branches/', formData);
+      await api.post('/branches/', { ...formData, name: capitalizedName });
       onBranchCreated();
       onClose();
     } catch (err) {
@@ -579,6 +633,8 @@ const BranchManagement = () => {
   const [loading, setLoading] = useState(true);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [editingBranch, setEditingBranch] = useState(null);
+  const [branchToDelete, setBranchToDelete] = useState(null);
+  const [deletingBranchId, setDeletingBranchId] = useState(null);
 
   useEffect(() => {
     fetchBranches();
@@ -599,18 +655,19 @@ const BranchManagement = () => {
     }
   };
 
-  const handleDeleteBranch = async (id, name) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the branch "${name}"?\n\nWARNING: This will permanently delete all associated sales, deliveries, inventories, and expenses for this branch. This action cannot be undone.`
-    );
-    if (!confirmDelete) return;
-
+  const handleConfirmDeleteBranch = async () => {
+    if (!branchToDelete) return;
+    setDeletingBranchId(branchToDelete.id);
     try {
-      await api.delete(`/branches/${id}/`);
+      await api.delete(`/branches/${branchToDelete.id}/`);
+      setBranchToDelete(null);
       fetchBranches();
     } catch (err) {
       console.error(err);
       alert('Error deleting branch. Please try again.');
+      setBranchToDelete(null);
+    } finally {
+      setDeletingBranchId(null);
     }
   };
 
@@ -764,7 +821,7 @@ const BranchManagement = () => {
                       padding: '0.3rem 0',
                       justify: 'center'
                     }}
-                    onClick={() => handleDeleteBranch(branch.id, branch.name)}
+                    onClick={() => setBranchToDelete(branch)}
                     title="Delete Branch"
                   >
                     <Trash2 size={13} />
@@ -796,6 +853,45 @@ const BranchManagement = () => {
           branch={editingBranch}
           onClose={() => setEditingBranch(null)}
           onBranchUpdated={fetchBranches}
+        />
+      )}
+
+      {/* Confirmation Modal when Admin tries to delete a branch */}
+      {branchToDelete && (
+        <ConfirmModal
+          isOpen={Boolean(branchToDelete)}
+          onClose={() => !deletingBranchId && setBranchToDelete(null)}
+          onConfirm={handleConfirmDeleteBranch}
+          title="Delete Branch Station"
+          subtitle="Confirm Station Deletion"
+          message={`Are you sure you want to delete the branch "${branchToDelete.name}"?`}
+          confirmText="Yes, Delete Branch"
+          cancelText="Cancel"
+          confirmVariant="danger"
+          loading={deletingBranchId === branchToDelete.id}
+          icon={AlertTriangle}
+          idPrefix="delete-branch-confirm"
+          details={
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', fontSize: '0.8rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Branch Name:</span>
+                <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{branchToDelete.name}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Location:</span>
+                <span style={{ color: 'var(--text-muted)' }}>{branchToDelete.address || 'No address set'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Assigned Managers:</span>
+                <span style={{ color: 'var(--text-muted)' }}>{branchToDelete.managers_list?.length || 0} manager(s)</span>
+              </div>
+            </div>
+          }
+          warningMessage={
+            <span>
+              <strong>CRITICAL WARNING:</strong> This will permanently delete all associated sales, deliveries, fuel inventories, and expenses for <strong>"{branchToDelete.name}"</strong>. This action cannot be undone.
+            </span>
+          }
         />
       )}
     </div>

@@ -19,8 +19,16 @@ import {
   BarChart, Bar
 } from 'recharts';
 
+/* ─── Branch Name Formatting Helper ───────────────────────────────── */
+const formatBranchName = (name) => {
+  if (!name || typeof name !== 'string') return '';
+  const trimmed = name.trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+};
+
 /* ─── Sleek Stat Card Component ───────────────────────────────────── */
-const StatCard = ({ title, value, icon: Icon, color, trend, subtitle }) => (
+const StatCard = ({ title, value, icon: Icon, color, trend, subtitle, textTransform }) => (
   <div
     className="glass-card glass-card-hover stat-card-item"
     style={{
@@ -49,7 +57,16 @@ const StatCard = ({ title, value, icon: Icon, color, trend, subtitle }) => (
       <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 500, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
         {title}
       </p>
-      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0.15rem 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.02em' }}>
+      <h3 style={{
+        fontSize: '1.25rem',
+        fontWeight: 700,
+        margin: '0.15rem 0 0 0',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        letterSpacing: '-0.02em',
+        ...(textTransform ? { textTransform } : {})
+      }}>
         {value}
       </h3>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.2rem' }}>
@@ -210,10 +227,15 @@ const Dashboard = () => {
         />
         <StatCard
           title={user?.role === 'ADMIN' ? 'Active Stations' : 'Station Branch'}
-          value={user?.role === 'ADMIN' ? `${stats.branch_count} Branches` : (user?.branch_name || 'Assigned')}
+          value={
+            user?.role === 'ADMIN'
+              ? `${stats.branch_count} Branches`
+              : (formatBranchName(stats?.branch_name || user?.branch_name) || 'Assigned')
+          }
           icon={Store}
           color="#8b5cf6"
           subtitle={user?.role === 'ADMIN' ? 'operational' : 'active station'}
+          textTransform={user?.role === 'ADMIN' ? undefined : 'capitalize'}
         />
       </div>
 
